@@ -1,57 +1,134 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { CreateCycleInput, CycleStatus, PdiCycle } from "../domain";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { localStoragePdiCycleRepository } from "../adapters/local-storage-pdi-cycle-repository";
+import type { CreateCycleInput, CycleStatus, PdiCycle } from "../domain";
+import type { PdiCycleRepository } from "../ports/pdi-cycle-repository";
+import { CycleFeedback } from "./cycle-feedback";
+import { CycleFilter } from "./cycle-filter";
+import { CycleForm, emptyCycleInput } from "./cycle-form";
+import { CycleResults } from "./cycle-results";
 
-const empty: CreateCycleInput = { title: "", description: null, durationType: "CUSTOM", startDate: "", endDate: "" };
+type Feedback = { variant: "info" | "success" | "warning" | "error"; message: string } | null;
+type ReadState = "loading" | "ready" | "error";
 
-export function CycleDashboard() {
+export function CycleDashboard({ repository = localStoragePdiCycleRepository }: { repository?: PdiCycleRepository }) {
   const [cycles, setCycles] = useState<PdiCycle[]>([]);
-  const [form, setForm] = useState<CreateCycleInput>(empty);
+  const [form, setForm] = useState<CreateCycleInput>(emptyCycleInput);
   const [status, setStatus] = useState<CycleStatus | "">("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [readState, setReadState] = useState<ReadState>("loading");
+  const [readError, setReadError] = useState("");
+  const [createPending, setCreatePending] = useState(false);
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const requestSequence = useRef(0);
+  const resultTitleRef = useRef<HTMLHeadingElement>(null);
+  const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
 
-  async function refresh() {
-    setLoading(true);
-    try { setCycles((await localStoragePdiCycleRepository.list({ status: status || undefined })).items); setError(""); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Não foi possível carregar os ciclos."); }
-    finally { setLoading(false); }
-  }
+  const refresh = useCallback(async (): Promise<boolean> => {
+    const request = ++requestSequence.current;
+    setReadState("loading");
+    try {
+      const result = await repository.list({ status: status || undefined });
+      if (request !== requestSequence.current) return false;
+      setCycles(result.items);
+      setReadError("");
+      setReadState("ready");
+      return true;
+    } catch (cause) {
+      if (request !== requestSequence.current) return false;
+      const message = "Verifique a conexão com o armazenamento do navegador e tente novamente.";
+      setReadError(message);
+      setReadState("error");
+      return false;
+    }
+  }, [repository, status]);
 
-  useEffect(() => { void refresh(); }, [status]);
+  useEffect(() => { void refresh(); }, [refresh]);
 
-  async function create(event: React.FormEvent) {
-    event.preventDefault();
-    try { await localStoragePdiCycleRepository.create(form); setForm(empty); await refresh(); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Não foi possível criar o ciclo."); }
+  async function create() {
+    if (createPending) return;
+    setCreatePending(true);
+    setFeedback(null);
+    try {
+      await repository.create(form);
+      setForm(emptyCycleInput);
+      const refreshed = await refresh();
+      if (refreshed) {
+        setFeedback(status && status !== "DRAFT"
+          ? { variant: "success", message: "Ciclo criado como rascunho. Ele não aparece no filtro atual." }
+          : { variant: "success", message: "Ciclo criado como rascunho." });
+      } else {
+        setFeedback({ variant: "warning", message: "O ciclo foi criado, mas a lista não pôde ser atualizada. Recarregue a página antes de tentar novamente." });
+      }
+    } catch (cause) {
+      setFeedback({ variant: "error", message: "Não foi possível salvar o ciclo. Seus dados continuam no formulário; tente novamente." });
+    } finally {
+      setCreatePending(false);
+    }
   }
 
   async function transition(id: string, next: Exclude<CycleStatus, "DRAFT">) {
-    try { await localStoragePdiCycleRepository.transition(id, next); await refresh(); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Transição não realizada."); }
+    if (pendingIds.has(id)) return;
+    setPendingIds((current) => new Set(current).add(id));
+    setFeedback(null);
+    try {
+      const updated = await repository.transition(id, next);
+      const refreshed = await refresh();
+      if (refreshed) {
+        const labels: Record<Exclude<CycleStatus, "DRAFT">, string> = { ACTIVE: "iniciado", COMPLETED: "concluído", CANCELLED: "cancelado" };
+        setFeedback({ variant: "success", message: `Ciclo ${labels[next]} com sucesso.` });
+        requestAnimationFrame(() => (itemRefs.current.get(updated.id) ?? resultTitleRef.current)?.focus());
+      } else {
+        setFeedback({ variant: "warning", message: "A alteração foi salva, mas a lista não pôde ser atualizada." });
+      }
+    } catch (cause) {
+      setFeedback({ variant: "error", message: "Não foi possível atualizar o ciclo. O status anterior foi mantido." });
+    } finally {
+      setPendingIds((current) => { const nextSet = new Set(current); nextSet.delete(id); return nextSet; });
+    }
   }
 
-  return <main style={{ maxWidth: 900, margin: "2rem auto", padding: "0 1rem", fontFamily: "sans-serif" }}>
-    <h1>Ciclos de PDI</h1>
-    <p>Planeje e acompanhe seus ciclos de desenvolvimento.</p>
-    {error && <p role="alert" style={{ color: "#b42318" }}>{error}</p>}
-    <section aria-labelledby="create-title">
-      <h2 id="create-title">Novo ciclo</h2>
-      <form onSubmit={create} style={{ display: "grid", gap: "0.75rem", maxWidth: 520 }}>
-        <label>Título<input required minLength={3} maxLength={120} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
-        <label>Descrição<textarea maxLength={2000} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value || null })} /></label>
-        <label>Tipo<select value={form.durationType} onChange={(e) => setForm({ ...form, durationType: e.target.value as CreateCycleInput["durationType"] })}><option value="TRIMESTER">Trimestral</option><option value="SEMESTER">Semestral</option><option value="YEAR">Anual</option><option value="CUSTOM">Personalizado</option></select></label>
-        <label>Data inicial<input required type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} /></label>
-        <label>Data final<input required type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} /></label>
-        <button type="submit">Criar ciclo</button>
-      </form>
-    </section>
-    <section aria-labelledby="list-title" style={{ marginTop: "2rem" }}>
-      <h2 id="list-title">Meus ciclos</h2>
-      <label>Filtrar por status<select value={status} onChange={(e) => setStatus(e.target.value as CycleStatus | "")}><option value="">Todos</option><option value="DRAFT">DRAFT</option><option value="ACTIVE">ACTIVE</option><option value="COMPLETED">COMPLETED</option><option value="CANCELLED">CANCELLED</option></select></label>
-      {loading ? <p role="status">Carregando ciclos…</p> : cycles.length === 0 ? <p>Nenhum ciclo encontrado.</p> : <ul>{cycles.map((cycle) => <li key={cycle.id} style={{ margin: "1rem 0" }}><strong>{cycle.title}</strong> — {cycle.status}<br />{cycle.startDate} a {cycle.endDate}<div>{cycle.status === "DRAFT" && <><button onClick={() => void transition(cycle.id, "ACTIVE")}>Iniciar</button><button onClick={() => void transition(cycle.id, "CANCELLED")}>Cancelar</button></>}{cycle.status === "ACTIVE" && <><button onClick={() => void transition(cycle.id, "COMPLETED")}>Concluir</button><button onClick={() => void transition(cycle.id, "CANCELLED")}>Cancelar</button></>}</div></li>)}</ul>}
-    </section>
-  </main>;
+  return (
+    <main className="pdi-shell">
+      <header className="pdi-masthead">
+        <div>
+          <p className="pdi-kicker">Plano de desenvolvimento individual</p>
+          <h1 className="pdi-title">Ciclos que dão forma ao seu percurso</h1>
+        </div>
+        <p className="pdi-intro">Organize períodos de desenvolvimento, acompanhe o que está em movimento e preserve a história de cada etapa.</p>
+      </header>
+
+      <div className="pdi-grid">
+        <section className="pdi-panel pdi-form-panel" aria-labelledby="create-title">
+          <div className="section-heading">
+            <p className="section-eyebrow">Próximo passo</p>
+            <h2 className="section-title" id="create-title">Novo ciclo</h2>
+            <p className="section-description">Defina o período que orientará seu foco de desenvolvimento.</p>
+          </div>
+          {feedback && <div style={{ marginBottom: 20 }}><CycleFeedback variant={feedback.variant}>{feedback.message}</CycleFeedback></div>}
+          <CycleForm value={form} pending={createPending} onChange={setForm} onSubmit={() => void create()} />
+        </section>
+
+        <section className="pdi-panel" aria-labelledby="list-title">
+          <div className="results-header">
+            <div>
+              <p className="section-eyebrow">Percurso</p>
+              <h2 ref={resultTitleRef} tabIndex={-1} className="section-title" id="list-title">Meus ciclos</h2>
+            </div>
+            <CycleFilter value={status} onChange={setStatus} />
+          </div>
+          <CycleResults
+            state={readState}
+            cycles={cycles}
+            filtered={Boolean(status)}
+            error={readError}
+            pendingIds={pendingIds}
+            itemRefs={itemRefs}
+            onTransition={(id, next) => void transition(id, next)}
+          />
+        </section>
+      </div>
+    </main>
+  );
 }
