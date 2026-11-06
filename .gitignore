@@ -1,0 +1,13 @@
+__pycache__
+.log
+.txt
+.xml
+.csv
+.venv
+node_modules
+.next/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.env*

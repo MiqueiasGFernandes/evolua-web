@@ -1,0 +1,50 @@
+{
+  "selected": "A",
+  "status": "planning proposal; rendered states need review",
+  "profiles": {
+    "A": {
+      "background": "#F6F7F4",
+      "surface": "#FFFFFF",
+      "surface-subtle": "#EDF1ED",
+      "foreground": "#252A27",
+      "muted-foreground": "#5D6761",
+      "primary": "#31584A",
+      "primary-hover": "#27483D",
+      "primary-pressed": "#1E392F",
+      "border-control": "#7B857E",
+      "border-subtle": "#D9DED8",
+      "focus": "#31584A",
+      "disabled-bg": "#E7EBE7",
+      "disabled-fg": "#626B64",
+      "active-bg": "#E6EEE8",
+      "active-fg": "#31584A",
+      "draft-bg": "#EDF0ED",
+      "draft-fg": "#5D6761",
+      "completed-bg": "#E9EEEA",
+      "completed-fg": "#39483E",
+      "cancelled-bg": "#F0EDEA",
+      "cancelled-fg": "#655D55",
+      "error-bg": "#FAEEEB",
+      "error-fg": "#9C382C",
+      "error-border": "#B5483A",
+      "warning-bg": "#F5F0E3",
+      "warning-fg": "#72551D"
+    },
+    "B": {
+      "background": "#FCFCFA",
+      "surface": "#FFFFFF",
+      "foreground": "#252D31",
+      "muted-foreground": "#59656D",
+      "primary": "#315764",
+      "border-control": "#7B858A"
+    },
+    "C": {
+      "background": "#F7F6F2",
+      "surface": "#FFFFFF",
+      "foreground": "#35312D",
+      "muted-foreground": "#68615B",
+      "primary": "#65543E",
+      "border-control": "#8A8277"
+    }
+  }
+}
