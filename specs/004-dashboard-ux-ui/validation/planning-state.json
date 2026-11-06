@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-06",
+  "purpose": "Estado observado durante speckit-plan após clarificação; não substitui o baseline histórico.",
+  "historical_baseline": "protected-hashes.json",
+  "current_hashes": {
+    "apps/web/src/features/pdi-cycles/domain.ts": "afc58e723ee764c2265a992c9953d57ac266f19afb57e5985be1327c64a75b55",
+    "apps/web/src/features/pdi-cycles/ports/pdi-cycle-repository.ts": "78c0908fc4ce95b8c6047646dd5caeb98df71b61acdf0dacf6407c019dac5228",
+    "apps/web/src/features/pdi-cycles/adapters/local-storage-pdi-cycle-repository.ts": "fd1be5943b6dfaba62fe39e016a3fac8d7978aa5a5c630b424de911a3612d22a",
+    "specs/001-ciclos-pdi/contracts/openapi.yaml": "a31a076ef52902eb48e2e13c1dd95b220fa1aa850a8d064810165ea01492509c"
+  },
+  "differences": [
+    {
+      "path": "specs/001-ciclos-pdi/contracts/openapi.yaml",
+      "historical_sha256": "ff10a3f330d7f5f3a9326f526bb7966285369d492ccb3f0edf5211a3ee21d023",
+      "current_sha256": "a31a076ef52902eb48e2e13c1dd95b220fa1aa850a8d064810165ea01492509c",
+      "observed_change": "info.title: Evolua PDI API → Evolua API; única diferença observada no diff do arquivo.",
+      "handling": "Alteração local externa ao planejamento preservada. Não alterar endpoints, schemas ou este arquivo nesta fase."
+    }
+  ]
+}

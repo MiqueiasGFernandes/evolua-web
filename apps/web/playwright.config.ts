@@ -4,6 +4,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
 
 export default defineConfig({
   testDir: "./tests",
+  testIgnore: /manual\//,
   outputDir: "test-results",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
@@ -25,9 +26,9 @@ export default defineConfig({
     video: "retain-on-failure"
   },
   projects: [
-    { name: "chromium-functional", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } }, testIgnore: /visual\/|states\// },
-    { name: "firefox-functional", use: { ...devices["Desktop Firefox"], viewport: { width: 1280, height: 800 } }, testIgnore: /visual\/|states\// },
-    { name: "webkit-functional", use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 800 } }, testIgnore: /visual\/|states\// },
+    { name: "chromium-functional", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } }, testIgnore: /visual\/|states\/|manual\// },
+    { name: "firefox-functional", use: { ...devices["Desktop Firefox"], viewport: { width: 1280, height: 800 } }, testIgnore: /visual\/|states\/|manual\// },
+    { name: "webkit-functional", use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 800 } }, testIgnore: /visual\/|states\/|manual\// },
     { name: "chromium-visual", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 1000 } }, testMatch: /visual\// },
     { name: "chromium-states", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 1000 } }, testMatch: /states\// }
   ],

@@ -1,15 +1,12 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const editorial = localFont({
-  src: [
-    { path: "../assets/fonts/newsreader-400.woff2", weight: "400", style: "normal" },
-    { path: "../assets/fonts/newsreader-500.woff2", weight: "500", style: "normal" }
-  ],
-  variable: "--font-editorial",
-  display: "swap"
-});
+export const metadata: Metadata = {
+  title: "Evolua | Ciclos",
+  description: "Organize e acompanhe seus ciclos de desenvolvimento individual."
+};
 
 const interfaceFont = localFont({
   src: [
@@ -21,5 +18,5 @@ const interfaceFont = localFont({
 });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return <html lang="pt-BR"><body className={`${editorial.variable} ${interfaceFont.variable}`}>{children}</body></html>;
+  return <html lang="pt-BR"><body className={interfaceFont.variable}>{children}</body></html>;
 }

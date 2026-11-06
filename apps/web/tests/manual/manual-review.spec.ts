@@ -1,0 +1,25 @@
+import { expect, test } from "@playwright/test";
+test("cenários isolados, pendência controlada e componentes reais", async ({ page }) => {
+  await page.goto("/");
+  const scenario = page.getByLabel("Cenário de teste");
+  await expect(page.getByRole("table")).toBeVisible();
+  await page.screenshot({ path: "../../specs/004-dashboard-ux-ui/validation/manual-surface.png", fullPage: true });
+  await scenario.selectOption("loading");
+  await expect(page.getByText("Carregando seus ciclos")).toBeVisible();
+  await page.getByRole("button", { name: "Liberar operação pendente" }).click();
+  await expect(page.getByRole("table")).toBeVisible();
+  await scenario.selectOption("read-error");
+  await expect(page.getByRole("heading", { name: "Não foi possível carregar os ciclos" })).toBeVisible();
+  await scenario.selectOption("write-error");
+  await page.getByRole("button", { name: /Concluir ciclo/ }).click();
+  await expect(page.getByRole("alert")).toContainText("Falha de gravação");
+  await scenario.selectOption("pending");
+  await page.getByRole("button", { name: /Concluir ciclo/ }).click();
+  await expect(page.getByRole("button", { name: /Concluir ciclo/ })).toBeDisabled();
+  await page.getByRole("button", { name: "Liberar operação pendente" }).click();
+  await expect(page.getByText("Ciclo concluído com sucesso.")).toBeVisible();
+  await page.getByRole("button", { name: "Reiniciar cenário" }).click();
+  await expect(page.getByRole("button", { name: /Concluir ciclo/ })).toBeEnabled();
+  await scenario.selectOption("empty");
+  await expect(page.getByRole("heading", { name: "Seu primeiro ciclo começa aqui" })).toBeVisible();
+});

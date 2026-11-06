@@ -5,9 +5,13 @@ import { localStoragePdiCycleRepository } from "../adapters/local-storage-pdi-cy
 import type { CreateCycleInput, CycleStatus, PdiCycle } from "../domain";
 import type { PdiCycleRepository } from "../ports/pdi-cycle-repository";
 import { CycleFeedback } from "./cycle-feedback";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChevronRightIcon, PlusIcon } from "@radix-ui/react-icons";
 import { CycleFilter } from "./cycle-filter";
 import { CycleForm, emptyCycleInput } from "./cycle-form";
 import { CycleResults } from "./cycle-results";
+import { CycleNavigation, MobileCycleNavigation, navigateToCycleSection } from "./cycle-navigation";
 
 type Feedback = { variant: "info" | "success" | "warning" | "error"; message: string } | null;
 type ReadState = "loading" | "ready" | "error";
@@ -23,7 +27,7 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const requestSequence = useRef(0);
   const resultTitleRef = useRef<HTMLHeadingElement>(null);
-  const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
+  const itemRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
 
   const refresh = useCallback(async (): Promise<boolean> => {
     const request = ++requestSequence.current;
@@ -35,7 +39,7 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
       setReadError("");
       setReadState("ready");
       return true;
-    } catch (cause) {
+    } catch {
       if (request !== requestSequence.current) return false;
       const message = "Verifique a conexão com o armazenamento do navegador e tente novamente.";
       setReadError(message);
@@ -61,7 +65,7 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
       } else {
         setFeedback({ variant: "warning", message: "O ciclo foi criado, mas a lista não pôde ser atualizada. Recarregue a página antes de tentar novamente." });
       }
-    } catch (cause) {
+    } catch {
       setFeedback({ variant: "error", message: "Não foi possível salvar o ciclo. Seus dados continuam no formulário; tente novamente." });
     } finally {
       setCreatePending(false);
@@ -83,52 +87,76 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
         setFeedback({ variant: "warning", message: "A alteração foi salva, mas a lista não pôde ser atualizada." });
       }
     } catch (cause) {
-      setFeedback({ variant: "error", message: "Não foi possível atualizar o ciclo. O status anterior foi mantido." });
+      setFeedback({ variant: "error", message: cause instanceof Error ? cause.message : "Não foi possível atualizar o ciclo. O status anterior foi mantido." });
     } finally {
       setPendingIds((current) => { const nextSet = new Set(current); nextSet.delete(id); return nextSet; });
     }
   }
 
   return (
-    <main className="pdi-shell">
-      <header className="pdi-masthead">
-        <div>
-          <p className="pdi-kicker">Plano de desenvolvimento individual</p>
-          <h1 className="pdi-title">Ciclos que dão forma ao seu percurso</h1>
-        </div>
-        <p className="pdi-intro">Organize períodos de desenvolvimento, acompanhe o que está em movimento e preserve a história de cada etapa.</p>
-      </header>
-
-      <div className="pdi-grid">
-        <section className="pdi-panel pdi-form-panel" aria-labelledby="create-title">
-          <div className="section-heading">
-            <p className="section-eyebrow">Próximo passo</p>
-            <h2 className="section-title" id="create-title">Novo ciclo</h2>
-            <p className="section-description">Defina o período que orientará seu foco de desenvolvimento.</p>
+    <div className="pdi-app-shell" id="topo">
+      <a className="skip-link" href="#conteudo">Ir para o conteúdo</a>
+      <CycleNavigation />
+      <div className="pdi-main">
+        <header className="pdi-topbar">
+          <div className="pdi-topbar__identity">
+            <MobileCycleNavigation />
+            <nav className="pdi-breadcrumb" aria-label="Localização atual">
+              <span>Evolua</span>
+              <ChevronRightIcon aria-hidden="true" />
+              <span aria-current="page">Ciclos</span>
+            </nav>
           </div>
-          {feedback && <div style={{ marginBottom: 20 }}><CycleFeedback variant={feedback.variant}>{feedback.message}</CycleFeedback></div>}
-          <CycleForm value={form} pending={createPending} onChange={setForm} onSubmit={() => void create()} />
-        </section>
-
-        <section className="pdi-panel" aria-labelledby="list-title">
-          <div className="results-header">
-            <div>
-              <p className="section-eyebrow">Percurso</p>
-              <h2 ref={resultTitleRef} tabIndex={-1} className="section-title" id="list-title">Meus ciclos</h2>
-            </div>
-            <CycleFilter value={status} onChange={setStatus} />
+          <Button type="button" size="compact" onClick={() => navigateToCycleSection("novo-ciclo")}>
+            <PlusIcon data-icon="inline-start" aria-hidden="true" /> Novo ciclo
+          </Button>
+        </header>
+        <main id="conteudo" tabIndex={-1} className="pdi-content">
+          <div className="pdi-page-heading">
+            <h1 className="pdi-title">Ciclos</h1>
+            <p className="pdi-intro">Acompanhe seus períodos de desenvolvimento e organize os próximos passos.</p>
           </div>
-          <CycleResults
-            state={readState}
-            cycles={cycles}
-            filtered={Boolean(status)}
-            error={readError}
-            pendingIds={pendingIds}
-            itemRefs={itemRefs}
-            onTransition={(id, next) => void transition(id, next)}
-          />
-        </section>
+
+          {feedback && <div className="feedback-stack"><CycleFeedback variant={feedback.variant}>{feedback.message}</CycleFeedback></div>}
+
+          <div className="pdi-content-grid">
+            <section id="meus-ciclos" tabIndex={-1} className="pdi-panel pdi-cycles-panel" aria-labelledby="list-title">
+              <Card>
+                <CardHeader className="results-header">
+                  <div>
+                    <CardTitle ref={resultTitleRef} tabIndex={-1} id="list-title">Meus ciclos</CardTitle>
+                    <CardDescription>Seus períodos de desenvolvimento.</CardDescription>
+                  </div>
+                  <CycleFilter value={status} onChange={setStatus} />
+                </CardHeader>
+                <CardContent>
+                  <CycleResults
+                    state={readState}
+                    cycles={cycles}
+                    filtered={Boolean(status)}
+                    error={readError}
+                    pendingIds={pendingIds}
+                    itemRefs={itemRefs}
+                    onTransition={(id, next) => void transition(id, next)}
+                  />
+                </CardContent>
+              </Card>
+            </section>
+
+            <section id="novo-ciclo" tabIndex={-1} className="pdi-panel pdi-form-panel" aria-labelledby="create-title">
+              <Card>
+                <CardHeader>
+                  <CardTitle id="create-title">Novo ciclo</CardTitle>
+                  <CardDescription>Defina um período para o seu próximo passo.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CycleForm value={form} pending={createPending} onChange={setForm} onSubmit={() => void create()} />
+                </CardContent>
+              </Card>
+            </section>
+          </div>
+        </main>
       </div>
-    </main>
+    </div>
   );
 }

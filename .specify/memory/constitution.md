@@ -7,7 +7,7 @@ Sync Impact Report
 - Follow-up TODOs: none
 -->
 
-# Evolua PDI Engineering Constitution
+# Evolua Engineering Constitution
 
 ## Core Principles
 

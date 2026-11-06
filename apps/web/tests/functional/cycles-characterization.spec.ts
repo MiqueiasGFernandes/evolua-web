@@ -4,6 +4,7 @@ import { cycleFixture, readCycles, seedCycles } from "../fixtures/pdi-cycles";
 test("redireciona a raiz e cria um rascunho persistente", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/pdi-cycles$/);
+  await expect(page.getByRole("heading", { name: "Seu primeiro ciclo começa aqui" })).toBeVisible();
   await page.getByLabel("Título").fill("Plano de evolução");
   await page.getByLabel("Data inicial").fill("2026-01-01");
   await page.getByLabel("Data final").fill("2026-04-01");

@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Evolua PDI API
+  title: Evolua API
   version: 1.0.0
   description: Contrato canônico para gerenciamento de ciclos de PDI.
 servers:

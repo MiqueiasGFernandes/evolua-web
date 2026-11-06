@@ -3,17 +3,18 @@ import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-[4px] border px-4 py-2.5 text-base font-semibold leading-5 transition-colors duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-[var(--border-disabled)] disabled:bg-[var(--surface-disabled)] disabled:text-[var(--text-disabled)]",
+  "ui-button",
   {
     variants: {
       variant: {
-        primary: "border-[var(--action-primary)] bg-[var(--action-primary)] text-white hover:border-[var(--action-primary-hover)] hover:bg-[var(--action-primary-hover)] active:bg-[var(--action-primary-pressed)]",
-        secondary: "border-[var(--border-control)] bg-transparent text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] active:bg-[var(--surface-muted)]",
-        destructive: "border-[var(--status-error)] bg-transparent text-[var(--status-error)] hover:bg-[var(--status-error-soft)] active:bg-[var(--status-error-soft)]"
+        primary: "ui-button--primary",
+        secondary: "ui-button--secondary",
+        destructive: "ui-button--destructive",
+        navigation: "ui-button--navigation"
       },
       size: {
-        default: "min-w-28",
-        compact: "min-w-0 px-3"
+        default: "ui-button--default",
+        compact: "ui-button--compact"
       }
     },
     defaultVariants: { variant: "primary", size: "default" }
