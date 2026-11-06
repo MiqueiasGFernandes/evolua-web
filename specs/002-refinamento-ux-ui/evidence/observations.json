@@ -1,0 +1,447 @@
+{
+  "date": "2026-11-06",
+  "browser": "Chromium 143 / Playwright 1.57.0",
+  "origin": "http://localhost:3000",
+  "isolatedContext": true,
+  "steps": [
+    {
+      "file": "01-desktop-empty.png",
+      "step": "Entrada redirecionada para listagem vazia e formulário",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\n\nNenhum ciclo encontrado."
+    },
+    {
+      "file": "02-tablet-empty.png",
+      "step": "Formulário e listagem vazia",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\n\nNenhum ciclo encontrado."
+    },
+    {
+      "file": "03-mobile-empty.png",
+      "step": "Formulário e listagem vazia",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\n\nNenhum ciclo encontrado."
+    },
+    {
+      "file": "04-desktop-active.png",
+      "step": "Criação e ativação de ciclo",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\nComunicação e liderança — ACTIVE\n2026-11-01 a 2027-01-31\nConcluirCancelar"
+    },
+    {
+      "file": "05-desktop-business-error.png",
+      "step": "Tentativa de segundo ciclo ativo: erro existente preservado",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nJá existe um ciclo ACTIVE.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\nComunicação e liderança — ACTIVE\n2026-11-01 a 2027-01-31\nConcluirCancelar\nPlanejamento do próximo trimestre — DRAFT\n2026-11-01 a 2027-01-31\nIniciarCancelar"
+    },
+    {
+      "file": "06-desktop-mixed.png",
+      "step": "Lista com estados encerrados e rascunho de título sem espaços no limite permitido",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\nComunicação e liderança — COMPLETED\n2026-11-01 a 2027-01-31\nPlanejamento do próximo trimestre — CANCELLED\n2026-11-01 a 2027-01-31\nDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD — DRAFT\n2026-11-01 a 2027-01-31\nIniciarCancelar"
+    },
+    {
+      "file": "07-tablet-mixed.png",
+      "step": "Lista com estados encerrados e rascunho de título sem espaços no limite permitido",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\nComunicação e liderança — COMPLETED\n2026-11-01 a 2027-01-31\nPlanejamento do próximo trimestre — CANCELLED\n2026-11-01 a 2027-01-31\nDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD — DRAFT\n2026-11-01 a 2027-01-31\nIniciarCancelar"
+    },
+    {
+      "file": "08-mobile-long-title.png",
+      "step": "Lista com estados encerrados e rascunho de título sem espaços no limite permitido",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\nComunicação e liderança — COMPLETED\n2026-11-01 a 2027-01-31\nPlanejamento do próximo trimestre — CANCELLED\n2026-11-01 a 2027-01-31\nDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD — DRAFT\n2026-11-01 a 2027-01-31\nIniciarCancelar"
+    },
+    {
+      "file": "09-desktop-filter-empty.png",
+      "step": "Filtro sem resultados usa a mesma mensagem da primeira utilização",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\n\nNenhum ciclo encontrado."
+    },
+    {
+      "file": "10-mobile-date-error.png",
+      "step": "Erro de datas aparece antes do formulário, sem associação ao campo",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nA data final deve ser posterior à data inicial.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\nComunicação e liderança — COMPLETED\n2026-11-01 a 2027-01-31\nPlanejamento do próximo trimestre — CANCELLED\n2026-11-01 a 2027-01-31\nDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD — DRAFT\n2026-11-01 a 2027-01-31\nIniciarCancelar"
+    },
+    {
+      "file": "11-mobile-focus.png",
+      "step": "Foco visível em campo de formulário",
+      "url": "http://localhost:3000/pdi-cycles",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nA data final deve ser posterior à data inicial.\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\nComunicação e liderança — COMPLETED\n2026-11-01 a 2027-01-31\nPlanejamento do próximo trimestre — CANCELLED\n2026-11-01 a 2027-01-31\nDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD — DRAFT\n2026-11-01 a 2027-01-31\nIniciarCancelar"
+    },
+    {
+      "file": "12-mobile-storage-error.png",
+      "step": "Falha simulada no armazenamento isolado: erro técnico e mensagem de vazio simultâneos",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "text": "Ciclos de PDI\n\nPlaneje e acompanhe seus ciclos de desenvolvimento.\n\nUnexpected token 'i', \"invalid-json\" is not valid JSON\n\nNovo ciclo\nTítulo\nDescrição\nTipo\nTrimestral\nSemestral\nAnual\nPersonalizado\nData inicial\nData final\nCriar ciclo\nMeus ciclos\nFiltrar por status\nTodos\nDRAFT\nACTIVE\nCOMPLETED\nCANCELLED\n\nNenhum ciclo encontrado."
+    }
+  ],
+  "widths": [
+    {
+      "state": "mixed-long-title",
+      "width": 320,
+      "scrollWidth": 1443,
+      "overflow": true,
+      "elements": [
+        {
+          "tag": "STRONG",
+          "text": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+        }
+      ]
+    },
+    {
+      "state": "mixed-long-title",
+      "width": 360,
+      "scrollWidth": 1443,
+      "overflow": true,
+      "elements": [
+        {
+          "tag": "STRONG",
+          "text": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+        }
+      ]
+    },
+    {
+      "state": "mixed-long-title",
+      "width": 390,
+      "scrollWidth": 1443,
+      "overflow": true,
+      "elements": [
+        {
+          "tag": "STRONG",
+          "text": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+        }
+      ]
+    },
+    {
+      "state": "mixed-long-title",
+      "width": 768,
+      "scrollWidth": 1443,
+      "overflow": true,
+      "elements": [
+        {
+          "tag": "STRONG",
+          "text": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+        }
+      ]
+    },
+    {
+      "state": "mixed-long-title",
+      "width": 1024,
+      "scrollWidth": 1505,
+      "overflow": true,
+      "elements": [
+        {
+          "tag": "STRONG",
+          "text": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+        }
+      ]
+    },
+    {
+      "state": "mixed-long-title",
+      "width": 1280,
+      "scrollWidth": 1633,
+      "overflow": true,
+      "elements": [
+        {
+          "tag": "STRONG",
+          "text": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+        }
+      ]
+    },
+    {
+      "state": "mixed-long-title",
+      "width": 1440,
+      "scrollWidth": 1713,
+      "overflow": true,
+      "elements": [
+        {
+          "tag": "STRONG",
+          "text": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "keyboard": [
+    {
+      "tag": "INPUT",
+      "name": "Título",
+      "outline": "rgb(37, 99, 235) solid 3px"
+    },
+    {
+      "tag": "TEXTAREA",
+      "name": "Descrição",
+      "outline": "rgb(37, 99, 235) solid 3px"
+    },
+    {
+      "tag": "SELECT",
+      "name": "Tipo",
+      "outline": "rgb(37, 99, 235) solid 3px"
+    },
+    {
+      "tag": "INPUT",
+      "name": "Data inicial",
+      "outline": "rgb(37, 99, 235) solid 3px"
+    },
+    {
+      "tag": "INPUT",
+      "name": "Data inicial",
+      "outline": "rgb(37, 99, 235) solid 3px"
+    },
+    {
+      "tag": "INPUT",
+      "name": "Data inicial",
+      "outline": "rgb(37, 99, 235) solid 3px"
+    },
+    {
+      "tag": "INPUT",
+      "name": "Data inicial",
+      "outline": "rgb(0, 0, 0) none 0px"
+    },
+    {
+      "tag": "INPUT",
+      "name": "Data final",
+      "outline": "rgb(37, 99, 235) solid 3px"
+    }
+  ],
+  "controls": [
+    {
+      "tag": "INPUT",
+      "text": "Título",
+      "width": 358,
+      "height": 38,
+      "font": "16px"
+    },
+    {
+      "tag": "TEXTAREA",
+      "text": "Descrição",
+      "width": 358,
+      "height": 54,
+      "font": "16px"
+    },
+    {
+      "tag": "SELECT",
+      "text": "Tipo",
+      "width": 358,
+      "height": 37,
+      "font": "16px"
+    },
+    {
+      "tag": "INPUT",
+      "text": "Data inicial",
+      "width": 358,
+      "height": 40,
+      "font": "16px"
+    },
+    {
+      "tag": "INPUT",
+      "text": "Data final",
+      "width": 358,
+      "height": 40,
+      "font": "16px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Criar ciclo",
+      "width": 350,
+      "height": 38,
+      "font": "16px"
+    },
+    {
+      "tag": "SELECT",
+      "text": "Filtrar por status",
+      "width": 358,
+      "height": 37,
+      "font": "16px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Iniciar",
+      "width": 62.6875,
+      "height": 38,
+      "font": "16px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Cancelar",
+      "width": 84.03125,
+      "height": 38,
+      "font": "16px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "width": 32,
+      "height": 32,
+      "font": "16px"
+    }
+  ],
+  "storage": [
+    {
+      "title": "Comunicação e liderança",
+      "description": "Prática de comunicação, planejamento e reflexão sobre o desenvolvimento.",
+      "durationType": "CUSTOM",
+      "startDate": "2026-11-01",
+      "endDate": "2027-01-31",
+      "id": "c172627d-aebf-4d37-ba71-b620b81f28df",
+      "ownerId": "local-user",
+      "status": "COMPLETED",
+      "version": 3,
+      "createdAt": "2026-11-06T17:35:31.404Z",
+      "updatedAt": "2026-11-06T17:35:31.848Z",
+      "history": [
+        {
+          "id": "9af3a230-f364-450c-afd2-1ccfbb4c1235",
+          "fromStatus": null,
+          "toStatus": "DRAFT",
+          "occurredAt": "2026-11-06T17:35:31.404Z",
+          "actorId": "local-user"
+        },
+        {
+          "id": "da658051-7a28-44f2-ba4f-084b5d9b0de3",
+          "fromStatus": "DRAFT",
+          "toStatus": "ACTIVE",
+          "occurredAt": "2026-11-06T17:35:31.465Z",
+          "actorId": "local-user"
+        },
+        {
+          "id": "ee2acdf8-87ca-4836-9fbe-bc2494e1653f",
+          "fromStatus": "ACTIVE",
+          "toStatus": "COMPLETED",
+          "occurredAt": "2026-11-06T17:35:31.848Z",
+          "actorId": "local-user"
+        }
+      ]
+    },
+    {
+      "title": "Planejamento do próximo trimestre",
+      "description": "Prática de comunicação, planejamento e reflexão sobre o desenvolvimento.",
+      "durationType": "CUSTOM",
+      "startDate": "2026-11-01",
+      "endDate": "2027-01-31",
+      "id": "18d5ecb5-006f-4c18-9d3f-822f2f528d09",
+      "ownerId": "local-user",
+      "status": "CANCELLED",
+      "version": 2,
+      "createdAt": "2026-11-06T17:35:31.646Z",
+      "updatedAt": "2026-11-06T17:35:31.898Z",
+      "history": [
+        {
+          "id": "e5d4879a-e201-4b65-b1ff-5bed2d577003",
+          "fromStatus": null,
+          "toStatus": "DRAFT",
+          "occurredAt": "2026-11-06T17:35:31.646Z",
+          "actorId": "local-user"
+        },
+        {
+          "id": "4a467ecc-4e7a-4566-9e04-f96da493eddf",
+          "fromStatus": "DRAFT",
+          "toStatus": "CANCELLED",
+          "occurredAt": "2026-11-06T17:35:31.898Z",
+          "actorId": "local-user"
+        }
+      ]
+    },
+    {
+      "title": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+      "description": "Prática de comunicação, planejamento e reflexão sobre o desenvolvimento.",
+      "durationType": "CUSTOM",
+      "startDate": "2026-11-01",
+      "endDate": "2027-01-31",
+      "id": "9c6a9995-1e8c-4491-9ecf-13585846b46a",
+      "ownerId": "local-user",
+      "status": "DRAFT",
+      "version": 1,
+      "createdAt": "2026-11-06T17:35:32.079Z",
+      "updatedAt": "2026-11-06T17:35:32.079Z",
+      "history": [
+        {
+          "id": "ddfe796c-10ad-44b2-87e4-16e8f90e50b2",
+          "fromStatus": null,
+          "toStatus": "DRAFT",
+          "occurredAt": "2026-11-06T17:35:32.079Z",
+          "actorId": "local-user"
+        }
+      ]
+    }
+  ],
+  "emptyWidths": [
+    {
+      "width": 320,
+      "scrollWidth": 320
+    },
+    {
+      "width": 360,
+      "scrollWidth": 360
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "width": 768,
+      "scrollWidth": 768
+    },
+    {
+      "width": 1024,
+      "scrollWidth": 1024
+    },
+    {
+      "width": 1280,
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1440,
+      "scrollWidth": 1440
+    }
+  ]
+}
