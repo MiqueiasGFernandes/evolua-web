@@ -8,6 +8,51 @@ test("menu desktop recolhe e abre página dedicada", async ({ page }) => {
  await sidebar.getByRole("link", { name: "Novo Ciclo", exact: true }).click();
  await expect(page).toHaveURL(/\/pdi-cycles\/new$/); await expect(page.getByRole("heading", { name: "Novo ciclo", exact: true })).toBeFocused();
 });
+test("busca do menu filtra em tempo real e mantém navegação", async ({ page }) => {
+ await seedCycles(page, mixedCycles);
+ const sidebar = page.getByRole("complementary", { name: "Navegação principal" });
+ const search = sidebar.getByRole("searchbox", { name: "Pesquisar no menu" });
+ await search.fill("  CÍCL ");
+ await expect(sidebar.getByRole("link", { name: "Meus Ciclos", exact: true })).toBeVisible();
+ await expect(sidebar.getByRole("link", { name: "Novo Ciclo", exact: true })).toBeVisible();
+ await sidebar.getByRole("button", { name: "Ciclos" }).click();
+ await search.fill("novo");
+ await expect(sidebar.getByRole("link", { name: "Meus Ciclos", exact: true })).toHaveCount(0);
+ await sidebar.getByRole("link", { name: "Novo Ciclo", exact: true }).click();
+ await expect(page).toHaveURL(/\/pdi-cycles\/new$/);
+});
+test("busca vazia restaura opções e ausência de resultado é informada", async ({ page }) => {
+ await seedCycles(page, mixedCycles);
+ const sidebar = page.getByRole("complementary", { name: "Navegação principal" });
+ const search = sidebar.getByRole("searchbox", { name: "Pesquisar no menu" });
+ await search.fill("inexistente");
+ await expect(sidebar.locator(".cycle-navigation__no-results")).toBeVisible();
+ await expect(sidebar.getByRole("link")).toHaveCount(1);
+ await search.fill("   ");
+ await expect(sidebar.getByRole("link", { name: "Meus Ciclos", exact: true })).toBeVisible();
+ await expect(sidebar.getByRole("link", { name: "Novo Ciclo", exact: true })).toBeVisible();
+});
+test("busca não existe no menu desktop mínimo", async ({ page }) => {
+ await seedCycles(page, mixedCycles);
+ const sidebar = page.getByRole("complementary", { name: "Navegação principal" });
+ await sidebar.getByRole("button", { name: "Recolher menu" }).click();
+ await expect(sidebar.getByRole("searchbox", { name: "Pesquisar no menu" })).toHaveCount(0);
+ await sidebar.getByRole("button", { name: "Expandir menu" }).click();
+ await expect(sidebar.getByRole("searchbox", { name: "Pesquisar no menu" })).toBeVisible();
+});
+test("busca móvel filtra e é limpa ao fechar o diálogo", async ({ page }) => {
+ await page.setViewportSize({ width: 390, height: 844 });
+ await seedCycles(page, mixedCycles);
+ await page.getByRole("button", { name: "Abrir menu de navegação" }).click();
+ const dialog = page.getByRole("dialog", { name: "Menu de navegação" });
+ const search = dialog.getByRole("searchbox", { name: "Pesquisar no menu" });
+ await search.fill("novo");
+ await expect(dialog.getByRole("link", { name: "Meus Ciclos", exact: true })).toHaveCount(0);
+ await expect(dialog.getByRole("link", { name: "Novo Ciclo", exact: true })).toBeVisible();
+ await dialog.getByRole("button", { name: "Fechar menu" }).click();
+ await page.getByRole("button", { name: "Abrir menu de navegação" }).click();
+ await expect(dialog.getByRole("searchbox", { name: "Pesquisar no menu" })).toHaveValue("");
+});
 for (const width of [390, 768]) test(`menu ${width} restaura foco e navega por teclado`, async ({ page }) => {
  await page.setViewportSize({ width, height: 844 }); await seedCycles(page, mixedCycles);
  const trigger = page.getByRole("button", { name: "Abrir menu de navegação" }), dialog = page.getByRole("dialog", { name: "Menu de navegação" });

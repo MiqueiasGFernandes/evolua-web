@@ -23,6 +23,7 @@ test("menu móvel tem nome, foco contido e contraste verificável", async ({ pag
   await page.getByRole("button", { name: "Abrir menu de navegação" }).click();
   const dialog = page.getByRole("dialog", { name: "Menu de navegação" });
   await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("searchbox", { name: "Pesquisar no menu" })).toBeVisible();
   for (let index = 0; index < 7; index++) {
     await page.keyboard.press("Tab");
     expect(await dialog.evaluate((element) => element.contains(document.activeElement))).toBe(true);

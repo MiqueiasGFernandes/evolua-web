@@ -74,3 +74,20 @@ test("registra estados vazio, filtro e menu para revisão", async ({ page }) => 
   await expect(page.getByRole("heading", { name: "Não foi possível carregar os ciclos" })).toBeVisible();
   await page.screenshot({ path: `${evidence}/after-error.png`, fullPage: true });
 });
+
+for (const width of [320, 390, 768, 1024, 1440]) {
+ test(`busca do menu permanece contida em ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
+  await seedCycles(page, mixedVariantCycles);
+  if (width < 1024) {
+   await page.getByRole("button", { name: "Abrir menu de navegação" }).click();
+   await page.getByRole("dialog", { name: "Menu de navegação" }).getByRole("searchbox", { name: "Pesquisar no menu" }).fill("novo");
+  } else {
+   const sidebar = page.getByRole("complementary", { name: "Navegação principal" });
+   await sidebar.getByRole("searchbox", { name: "Pesquisar no menu" }).fill("novo");
+   await sidebar.getByRole("button", { name: "Recolher menu" }).click();
+   await expect(sidebar.getByRole("searchbox", { name: "Pesquisar no menu" })).toHaveCount(0);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+ });
+}

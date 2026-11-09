@@ -115,6 +115,11 @@ button:disabled { cursor: not-allowed; }
 .cycle-navigation__brand { display: flex; min-width: 0; align-items: center; gap: var(--space-2); color: var(--sidebar-text); font-size: var(--type-section); font-weight: 600; text-decoration: none; white-space: nowrap; }
 .cycle-navigation__brand-mark { display: grid; width: 32px; height: 32px; flex: none; place-items: center; border-radius: var(--radius-control); background: var(--action-primary); color: var(--text-on-action); font-size: 24px; line-height: 1; }
 .cycle-navigation__brand-detail { color: var(--sidebar-muted); font-size: var(--type-sm); font-weight: 400; }
+.cycle-navigation__search { margin: calc(var(--space-8) * -1) 0 var(--space-5); }
+.cycle-navigation__search .field-control { border-color: var(--sidebar-border); background: var(--sidebar-hover); color: var(--sidebar-text); }
+.cycle-navigation__search .field-control::placeholder { color: var(--sidebar-muted); opacity: 1; }
+.cycle-navigation__search .field-control:hover, .cycle-navigation__search .field-control:focus { border-color: var(--sidebar-focus); }
+.cycle-navigation__no-results { margin: var(--space-2) var(--space-3); color: var(--sidebar-muted); font-size: var(--type-sm); line-height: 1.5; }
 .cycle-navigation__section-label { margin: 0 var(--space-3) var(--space-3); color: var(--sidebar-muted); font-size: var(--type-xs); font-weight: 600; }
 .cycle-navigation__group { display: flex; min-height: var(--control-height); align-items: center; gap: var(--space-3); width: 100%; border: 0; border-radius: var(--radius-control); padding: var(--space-2) var(--space-3); background: transparent; color: var(--sidebar-text); font-size: var(--type-sm); font-weight: 600; text-align: left; }
 .cycle-navigation__group:hover { background: var(--sidebar-hover); }
@@ -139,6 +144,7 @@ button:disabled { cursor: not-allowed; }
 .cycle-navigation__dialog { width: min(88vw, 320px); height: 100dvh; max-height: none; margin: 0 auto 0 0; border: 0; padding: var(--space-4); background: var(--surface-sidebar); color: var(--sidebar-text); }
 .cycle-navigation__dialog::backdrop { background: var(--overlay-backdrop); }
 .cycle-navigation__dialog-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-8); }
+.cycle-navigation__dialog .cycle-navigation__search { margin-top: calc(var(--space-8) * -1); }
 .cycle-navigation__group--static { cursor: default; }
 
 /* Controls share geometry, type and interaction tokens. */
