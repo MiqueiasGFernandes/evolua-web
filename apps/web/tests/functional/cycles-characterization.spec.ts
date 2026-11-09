@@ -5,16 +5,18 @@ test("redireciona a raiz e cria um rascunho persistente", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/pdi-cycles$/);
   await expect(page.getByRole("heading", { name: "Seu primeiro ciclo começa aqui" })).toBeVisible();
-  await page.getByLabel("Título").fill("Plano de evolução");
+  await page.getByRole("button", { name: "Novo ciclo", exact: true }).click();
   await page.getByLabel("Data inicial").fill("2026-01-01");
-  await page.getByLabel("Data final").fill("2026-04-01");
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await page.getByLabel("Objetivo 1", { exact: true }).fill("Plano de evolução");
+  await page.getByRole("button", { name: "Continuar" }).click();
   await page.getByRole("button", { name: "Criar ciclo" }).click();
   await expect(page.getByText("Plano de evolução", { exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByText("Plano de evolução", { exact: true })).toBeVisible();
   const [cycle] = await readCycles(page);
   expect(cycle.status).toBe("DRAFT");
-  expect(cycle.description).toBeNull();
+  expect(cycle).not.toHaveProperty("description");
   expect(cycle.history).toHaveLength(1);
 });
 

@@ -18,12 +18,7 @@ export function navigateToCycleSection(target: CycleSection) {
 function CycleLinks({ onNavigate }: { onNavigate?: (target: CycleSection) => void }) {
   const [active, setActive] = useState<CycleSection>("meus-ciclos");
 
-  useEffect(() => {
-    const sync = () => setActive(window.location.hash === "#novo-ciclo" ? "novo-ciclo" : "meus-ciclos");
-    sync();
-    window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
-  }, []);
+  useEffect(() => { setActive(window.location.pathname.endsWith("/new") ? "novo-ciclo" : "meus-ciclos"); }, []);
 
   const links = [
     { id: "meus-ciclos", label: "Meus Ciclos", icon: ListBulletIcon },
@@ -33,10 +28,10 @@ function CycleLinks({ onNavigate }: { onNavigate?: (target: CycleSection) => voi
   return (
     <nav aria-label="Seções de ciclos" className="cycle-navigation__links">
       {links.map(({ id, label, icon: Icon }) => (
-        <a key={id} href={`#${id}`} title={label} aria-current={active === id ? "location" : undefined}
+        <a key={id} href={id === "novo-ciclo" ? "/pdi-cycles/new" : "/pdi-cycles#meus-ciclos"} title={label} aria-current={active === id ? "location" : undefined}
           onClick={(event) => {
-            event.preventDefault();
-            (onNavigate ?? navigateToCycleSection)(id);
+            if (event.defaultPrevented) return;
+            if (onNavigate && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onNavigate(id); }
           }}>
           <Icon aria-hidden="true" />
           <span>{label}</span>
@@ -48,7 +43,7 @@ function CycleLinks({ onNavigate }: { onNavigate?: (target: CycleSection) => voi
 
 function NavigationBrand({ compact = false, onNavigate }: { compact?: boolean; onNavigate?: () => void }) {
   return (
-    <a className="cycle-navigation__brand" href="#topo" aria-label="Evolua, início" onClick={onNavigate}>
+    <a className="cycle-navigation__brand" href="/pdi-cycles" aria-label="Evolua, início" onClick={(event) => { if (onNavigate) { event.preventDefault(); onNavigate(); } }}>
       <span className="cycle-navigation__brand-mark" aria-hidden="true">e</span>
       {!compact && <span>Evolua <span className="cycle-navigation__brand-detail">PDI</span></span>}
     </a>
@@ -84,7 +79,7 @@ export function CycleNavigation() {
   );
 }
 
-export function MobileCycleNavigation() {
+export function MobileCycleNavigation({ onNavigate }: { onNavigate?: (href: string) => void }) {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -112,7 +107,12 @@ export function MobileCycleNavigation() {
     const target = closeTarget.current;
     closeTarget.current = null;
     if (target === "desktop") document.getElementById("meus-ciclos")?.focus({ preventScroll: true });
-    else if (target) navigateToCycleSection(target);
+    else if (target) {
+      triggerRef.current?.focus({ preventScroll: true });
+      const href = target === "novo-ciclo" ? "/pdi-cycles/new" : "/pdi-cycles#meus-ciclos";
+      if (onNavigate) onNavigate(href);
+      else window.location.assign(href);
+    }
     else triggerRef.current?.focus({ preventScroll: true });
   }
 

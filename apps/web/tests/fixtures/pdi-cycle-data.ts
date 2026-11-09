@@ -1,12 +1,13 @@
-import type { CycleStatus, PdiCycle } from "../../src/features/pdi-cycles/domain";
+import type { CycleStatus, LegacyPdiCycle, ObjectivesPdiCycle } from "../../src/features/pdi-cycles/domain";
 
 export const STORAGE_KEY = "evolua:pdi-cycles:v1";
 export const OWNER_ID = "local-user";
 export const FIXED_NOW = "2026-11-06T12:00:00.000Z";
 
-export function cycleFixture(status: CycleStatus, index = 1, overrides: Partial<PdiCycle> = {}): PdiCycle {
+export function cycleFixture(status: CycleStatus, index = 1, overrides: Partial<LegacyPdiCycle> = {}): LegacyPdiCycle {
   const id = `cycle-${status.toLowerCase()}-${index}`;
   return {
+    kind: "LEGACY",
     id,
     ownerId: OWNER_ID,
     title: `${status === "ACTIVE" ? "Comunicação e liderança" : "Ciclo"} ${index}`,
@@ -30,3 +31,12 @@ export const mixedCycles = [
   cycleFixture("CANCELLED", 4, { title: "Especialização anterior" })
 ];
 
+
+export const objectivesCycle: ObjectivesPdiCycle = {
+  kind: "OBJECTIVES", id: "objectives-fixture", ownerId: OWNER_ID,
+  durationType: "TRIMESTER", startDate: "2026-01-31", endDate: "2026-04-30",
+  status: "DRAFT", version: 1, createdAt: FIXED_NOW, updatedAt: FIXED_NOW,
+  objectives: ["Praticar comunicação clara", "Compartilhar aprendizados"],
+  history: [{ id: "history-objectives", fromStatus: null, toStatus: "DRAFT", occurredAt: FIXED_NOW, actorId: OWNER_ID }]
+};
+export const mixedVariantCycles = [...mixedCycles, objectivesCycle];

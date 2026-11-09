@@ -2,31 +2,36 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { localStoragePdiCycleRepository } from "../adapters/local-storage-pdi-cycle-repository";
-import type { CreateCycleInput, CycleStatus, PdiCycle } from "../domain";
+import type { CycleStatus, PdiCycle } from "../domain";
 import type { PdiCycleRepository } from "../ports/pdi-cycle-repository";
 import { CycleFeedback } from "./cycle-feedback";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronRightIcon, PlusIcon } from "@radix-ui/react-icons";
+import { PlusIcon } from "@radix-ui/react-icons";
 import { CycleFilter } from "./cycle-filter";
-import { CycleForm, emptyCycleInput } from "./cycle-form";
+import { CycleCreateDialog } from "./cycle-create-dialog";
+import { CycleAppShell } from "./cycle-app-shell";
+import { cycleLabel } from "./cycle-presentation";
 import { CycleResults } from "./cycle-results";
-import { CycleNavigation, MobileCycleNavigation, navigateToCycleSection } from "./cycle-navigation";
+
 
 type Feedback = { variant: "info" | "success" | "warning" | "error"; message: string } | null;
 type ReadState = "loading" | "ready" | "error";
 
 export function CycleDashboard({ repository = localStoragePdiCycleRepository }: { repository?: PdiCycleRepository }) {
   const [cycles, setCycles] = useState<PdiCycle[]>([]);
-  const [form, setForm] = useState<CreateCycleInput>(emptyCycleInput);
+  const [creating, setCreating] = useState(false);
+  const [created, setCreated] = useState<PdiCycle | null>(null);
   const [status, setStatus] = useState<CycleStatus | "">("");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [readState, setReadState] = useState<ReadState>("loading");
   const [readError, setReadError] = useState("");
-  const [createPending, setCreatePending] = useState(false);
+
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const requestSequence = useRef(0);
   const resultTitleRef = useRef<HTMLHeadingElement>(null);
+  const createTrigger = useRef<HTMLButtonElement>(null);
+  const restoreCreateFocus = useCallback(() => createTrigger.current?.focus(), []);
   const itemRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
 
   const refresh = useCallback(async (): Promise<boolean> => {
@@ -41,7 +46,7 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
       return true;
     } catch {
       if (request !== requestSequence.current) return false;
-      const message = "Verifique a conexão com o armazenamento do navegador e tente novamente.";
+      const message = "Não foi possível ler os dados do navegador. Preserve o armazenamento antes de tentar recuperá-lo.";
       setReadError(message);
       setReadState("error");
       return false;
@@ -50,27 +55,22 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
 
   useEffect(() => { void refresh(); }, [refresh]);
 
-  async function create() {
-    if (createPending) return;
-    setCreatePending(true);
-    setFeedback(null);
-    try {
-      await repository.create(form);
-      setForm(emptyCycleInput);
-      const refreshed = await refresh();
-      if (refreshed) {
-        setFeedback(status && status !== "DRAFT"
-          ? { variant: "success", message: "Ciclo criado como rascunho. Ele não aparece no filtro atual." }
-          : { variant: "success", message: "Ciclo criado como rascunho." });
-      } else {
-        setFeedback({ variant: "warning", message: "O ciclo foi criado, mas a lista não pôde ser atualizada. Recarregue a página antes de tentar novamente." });
-      }
-    } catch {
-      setFeedback({ variant: "error", message: "Não foi possível salvar o ciclo. Seus dados continuam no formulário; tente novamente." });
-    } finally {
-      setCreatePending(false);
-    }
+  async function afterCreated(cycle: PdiCycle) {
+    setCreating(false); setCreated(cycle);
+    const refreshed = await refresh();
+    setFeedback(!refreshed ? { variant: "warning", message: "O ciclo foi criado, mas a lista não pôde ser atualizada. Recarregue a consulta; não é necessário criar novamente." }
+      : { variant: "success", message: status && status !== "DRAFT" ? "Ciclo criado como rascunho. Ele não aparece no filtro atual." : "Ciclo criado como rascunho." });
+    requestAnimationFrame(() => (itemRefs.current.get(cycle.id) ?? resultTitleRef.current)?.focus());
   }
+  useEffect(() => {
+    const url = new URL(window.location.href), id = url.searchParams.get("created");
+    if (!id) return;
+    url.searchParams.delete("created"); window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+    void repository.get(id).then((cycle) => {
+      if (cycle) { setCreated(cycle); setFeedback({ variant: "success", message: "Ciclo salvo como rascunho. Consulte seu planejamento abaixo." }); }
+      else setFeedback({ variant: "info", message: "O ciclo solicitado não foi encontrado nesta consulta." });
+    }).catch(() => setFeedback({ variant: "warning", message: "Não foi possível recuperar o ciclo salvo. Preserve seus dados e recarregue a consulta." }));
+  }, [repository]);
 
   async function transition(id: string, next: Exclude<CycleStatus, "DRAFT">) {
     if (pendingIds.has(id)) return;
@@ -94,24 +94,7 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
   }
 
   return (
-    <div className="pdi-app-shell" id="topo">
-      <a className="skip-link" href="#conteudo">Ir para o conteúdo</a>
-      <CycleNavigation />
-      <div className="pdi-main">
-        <header className="pdi-topbar">
-          <div className="pdi-topbar__identity">
-            <MobileCycleNavigation />
-            <nav className="pdi-breadcrumb" aria-label="Localização atual">
-              <span>Evolua</span>
-              <ChevronRightIcon aria-hidden="true" />
-              <span aria-current="page">Ciclos</span>
-            </nav>
-          </div>
-          <Button type="button" size="compact" onClick={() => navigateToCycleSection("novo-ciclo")}>
-            <PlusIcon data-icon="inline-start" aria-hidden="true" /> Novo ciclo
-          </Button>
-        </header>
-        <main id="conteudo" tabIndex={-1} className="pdi-content">
+    <CycleAppShell action={<Button ref={createTrigger} type="button" size="compact" onClick={() => setCreating(true)}><PlusIcon data-icon="inline-start" aria-hidden="true" /> Novo ciclo</Button>}>
           <div className="pdi-page-heading">
             <h1 className="pdi-title">Ciclos</h1>
             <p className="pdi-intro">Acompanhe seus períodos de desenvolvimento e organize os próximos passos.</p>
@@ -119,7 +102,8 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
 
           {feedback && <div className="feedback-stack"><CycleFeedback variant={feedback.variant}>{feedback.message}</CycleFeedback></div>}
 
-          <div className="pdi-content-grid">
+          {created && !cycles.some((cycle) => cycle.id === created.id) && <section className="created-cycle-summary" aria-label="Ciclo salvo"><h2>{cycleLabel(created)}</h2>{created.kind === "OBJECTIVES" && <ul>{created.objectives.map((text, index) => <li key={index}>{text}</li>)}</ul>}</section>}
+          <div className="pdi-consultation-grid">
             <section id="meus-ciclos" tabIndex={-1} className="pdi-panel pdi-cycles-panel" aria-labelledby="list-title">
               <Card>
                 <CardHeader className="results-header">
@@ -143,20 +127,8 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
               </Card>
             </section>
 
-            <section id="novo-ciclo" tabIndex={-1} className="pdi-panel pdi-form-panel" aria-labelledby="create-title">
-              <Card>
-                <CardHeader>
-                  <CardTitle id="create-title">Novo ciclo</CardTitle>
-                  <CardDescription>Defina um período para o seu próximo passo.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CycleForm value={form} pending={createPending} onChange={setForm} onSubmit={() => void create()} />
-                </CardContent>
-              </Card>
-            </section>
           </div>
-        </main>
-      </div>
-    </div>
+          {creating && <CycleCreateDialog restoreFocus={restoreCreateFocus} repository={repository} onClose={() => setCreating(false)} onCreated={(cycle) => void afterCreated(cycle)} />}
+    </CycleAppShell>
   );
 }

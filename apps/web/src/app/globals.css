@@ -253,3 +253,41 @@ button:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Guided creation shares foundations with the consultation. */
+.pdi-consultation-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+.cycle-create-page { max-width: 760px; margin-inline: auto; }
+.wizard-page-card, .created-cycle-summary { background: var(--surface-raised); border: 1px solid var(--border-subtle); border-radius: var(--radius-panel); padding: var(--space-6); }
+.created-cycle-summary { margin-bottom: var(--space-6); }
+.created-cycle-summary h2 { font-size: var(--type-section); }
+.cycle-create-dialog { margin: auto; width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; padding: var(--space-8); border: 1px solid var(--border-subtle); border-radius: var(--radius-panel); background: var(--surface-raised); color: var(--text-primary); }
+.cycle-create-dialog::backdrop { background: var(--overlay-backdrop); }
+.wizard-header { margin-bottom: var(--space-6); }
+.wizard-header h1 { font-size: var(--type-title); font-weight: 600; margin: var(--space-2) 0; }
+.wizard-header p { color: var(--text-secondary); }
+.wizard-eyebrow { color: var(--action-primary) !important; font-size: var(--type-sm); font-weight: 600; }
+.cycle-wizard [hidden] { display: none; }
+.wizard-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.wizard-steps li { display: flex; align-items: center; gap: var(--space-2); color: var(--text-secondary); font-size: var(--type-sm); border-bottom: 2px solid var(--border-subtle); padding-bottom: var(--space-3); }
+.wizard-steps li[aria-current] { color: var(--action-primary); border-color: var(--action-primary); font-weight: 600; }
+.wizard-steps li span { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; background: var(--surface-subtle); }
+.wizard-stage-heading { margin-block: var(--space-6); }
+.wizard-stage-heading h2, .wizard-discard h2 { font-size: var(--type-section); font-weight: 600; margin-top: var(--space-1); }
+.wizard-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
+.wizard-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--border-subtle); }
+.wizard-calculated { display: grid; gap: var(--space-2); padding: var(--space-4); border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--surface-page); }
+.wizard-calculated output { font-size: var(--type-section); }
+.wizard-objective { display: grid; gap: var(--space-2); justify-items: start; }
+.wizard-objective .form-field { width: 100%; }
+.wizard-review dd { margin: var(--space-1) 0 var(--space-4); font-weight: 600; }
+.wizard-review dt { color: var(--text-secondary); font-size: var(--type-sm); }
+.wizard-review ol, .cycle-goals, .created-cycle-summary ul { padding-left: var(--space-6); overflow-wrap: anywhere; white-space: pre-wrap; }
+.cycle-goals { font-weight: 400; font-size: var(--type-sm); margin-top: var(--space-2); }
+.wizard-review li + li { margin-top: var(--space-2); }
+@media (max-width: 480px) {
+ .cycle-create-dialog { padding: var(--space-4); }
+ .wizard-page-card { padding: var(--space-4); }
+ .wizard-steps li { flex-direction: column; align-items: flex-start; }
+ .wizard-actions { align-items: stretch; }
+ .wizard-actions > .form-actions { flex: 1; justify-content: flex-end; }
+}

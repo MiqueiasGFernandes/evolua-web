@@ -1,5 +1,7 @@
 # Feature Specification: Refatoração do dashboard Evolua
 
+> Evolução de criação: a [SPEC-005](../005-cadastro-guiado-ciclos/spec.md) substitui, para novos cadastros, título/descrição por objetivos, duração informativa por término automático e formulário permanente/âncora por modal ou página guiada. Demais regras e evidências históricas permanecem.
+
 **Feature Branch**: `main`  
 **Created**: 2026-11-06  
 **Status**: Implementado e validado automaticamente; aceitação pendente da revisão manual com leitor de tela  

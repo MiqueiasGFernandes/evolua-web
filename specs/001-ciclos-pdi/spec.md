@@ -1,5 +1,7 @@
 # Feature Specification: Gerenciamento de Ciclos de PDI
 
+> Evolução de criação: a [SPEC-005](../005-cadastro-guiado-ciclos/spec.md) substitui, para novos cadastros, título/descrição por objetivos, duração informativa por término automático e formulário permanente/âncora por modal ou página guiada. Demais regras e evidências históricas permanecem.
+
 **Feature Branch**: `001-ciclos-pdi`
 
 **Created**: 2026-11-06

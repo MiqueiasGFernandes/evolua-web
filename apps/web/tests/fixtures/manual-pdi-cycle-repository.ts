@@ -1,4 +1,4 @@
-import { canTransition, validateCycleInput, type PdiCycle } from "../../src/features/pdi-cycles/domain";
+import { canTransition, updatedCycle, validateCycleInput, type PdiCycle } from "../../src/features/pdi-cycles/domain";
 import type { PdiCycleRepository } from "../../src/features/pdi-cycles/ports/pdi-cycle-repository";
 import { mixedCycles, OWNER_ID, FIXED_NOW } from "./pdi-cycle-data";
 
@@ -34,15 +34,13 @@ export function createManualRepository(scenario: ManualScenario): PdiCycleReposi
     async create(input) {
       await beforeWrite(); validate(input);
       const id = `manual-${++sequence}`;
-      const cycle: PdiCycle = { ...input, id, ownerId: OWNER_ID, status: "DRAFT", version: 1, createdAt: FIXED_NOW, updatedAt: FIXED_NOW, history: [{ id: `history-${id}`, fromStatus: null, toStatus: "DRAFT", actorId: OWNER_ID, occurredAt: FIXED_NOW }] };
+      const cycle: PdiCycle = { ...input, kind: "OBJECTIVES", objectives: input.objectives.map((text) => text.trim()), id, ownerId: OWNER_ID, status: "DRAFT", version: 1, createdAt: FIXED_NOW, updatedAt: FIXED_NOW, history: [{ id: `history-${id}`, fromStatus: null, toStatus: "DRAFT", actorId: OWNER_ID, occurredAt: FIXED_NOW }] };
       cycles.push(cycle); return structuredClone(cycle);
     },
     async update(id, input, expectedVersion) {
       await beforeWrite(); const current = find(id);
-      if (current.status === "COMPLETED" || current.status === "CANCELLED") throw new Error("Ciclos encerrados são imutáveis.");
-      if (current.version !== expectedVersion) throw new Error("O ciclo foi alterado. Recarregue antes de tentar novamente.");
-      const updated = { ...current, ...input, version: current.version + 1, updatedAt: FIXED_NOW };
-      validate(updated); cycles = cycles.map((item) => item.id === id ? updated : item);
+      const updated = updatedCycle(current, input, expectedVersion);
+      cycles = cycles.map((item) => item.id === id ? updated : item);
       return structuredClone(updated);
     },
     async transition(id, status) {

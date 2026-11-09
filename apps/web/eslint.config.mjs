@@ -6,7 +6,7 @@ const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const compat = new FlatCompat({ baseDirectory: currentDirectory });
 
 const config = [
-  { ignores: [".next/**", ".next-states/**", "next-env.d.ts", "node_modules/**", "playwright-report/**", "test-results/**", "coverage/**"] },
+  { ignores: [".next/**", ".next-states/**", "next-env.d.ts", "node_modules/**", "playwright-report/**", "test-results/**", "coverage/**", "dist/**", "build/**", "**/*.min.js"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   { files: ["src/features/pdi-cycles/adapters/local-storage-pdi-cycle-repository.ts"], rules: { "@typescript-eslint/no-unused-vars": "off" } }
 ];

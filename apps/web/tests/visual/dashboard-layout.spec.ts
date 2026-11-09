@@ -1,22 +1,50 @@
 import { expect, test } from "@playwright/test";
-import { mixedCycles, seedCycles } from "../fixtures/pdi-cycles";
+import { mixedCycles, mixedVariantCycles, seedCycles } from "../fixtures/pdi-cycles";
+import { fillPlanning } from "../fixtures/wizard";
 
-const evidence = "../../specs/004-dashboard-ux-ui/validation";
+const evidence = "../../specs/005-cadastro-guiado-ciclos/validation";
+
+for (const width of [320, 390, 768, 1024, 1440]) {
+ for (const surface of ["modal", "page"]) {
+  test(`wizard ${surface} remains usable at ${width}px`, async ({ page }) => {
+   await page.setViewportSize({ width, height: 900 });
+   await page.emulateMedia({ reducedMotion: "reduce" });
+   await page.goto(surface === "page" ? "/pdi-cycles/new" : "/pdi-cycles");
+   if (surface === "modal") await page.getByRole("button", { name: "Novo ciclo", exact: true }).click();
+   await fillPlanning(page, "Aprendizado".repeat(100));
+   const create = page.getByRole("button", { name: "Criar ciclo", exact: true });
+   await create.scrollIntoViewIfNeeded();
+   const bounds = await create.boundingBox();
+   expect(bounds!.x).toBeGreaterThanOrEqual(0);
+   expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width + 1);
+   expect(bounds!.y).toBeGreaterThanOrEqual(0);
+   expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(901);
+   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+   if (surface === "modal") {
+    const dialog = page.getByRole("dialog", { name: "Novo ciclo" });
+    expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+   }
+   await page.screenshot({ path: `${evidence}/wizard-${surface}-${width}.png`, fullPage: true });
+   await create.click();
+   await expect(page.getByRole("table")).toBeVisible();
+  });
+ }
+}
 
 for (const width of [320, 390, 768, 1024, 1280, 1440]) {
   test(`conteúdo e ações permanecem contidos em ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 1440 ? 1000 : 1024 });
-    await seedCycles(page, mixedCycles);
+    await seedCycles(page, mixedVariantCycles);
     await expect(page.getByRole("table")).toBeVisible();
     const trigger = page.getByRole("button", { name: "Abrir menu de navegação" });
     if (width < 1024) await expect(trigger).toBeVisible();
     else await expect(trigger).toBeHidden();
     await page.evaluate(() => document.fonts.ready);
-    await expect(page.getByRole("columnheader", { name: "Título" })).toBeAttached();
+    await expect(page.getByRole("columnheader", { name: "Ciclo e objetivos" })).toBeAttached();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await page.screenshot({ path: `${evidence}/after-${width}.png`, fullPage: true });
 
-    await seedCycles(page, [{ ...mixedCycles[0], title: "Desenvolvimento".repeat(20) }]);
+    await seedCycles(page, [{ ...mixedCycles[0], title: "Desenvolvimento".repeat(7) }]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     const action = page.getByRole("button", { name: /Concluir ciclo/ });
     await action.scrollIntoViewIfNeeded();

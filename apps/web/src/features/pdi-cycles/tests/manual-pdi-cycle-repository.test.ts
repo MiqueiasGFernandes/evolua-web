@@ -16,7 +16,7 @@ describe("repositório de revisão isolado", () => {
     const repo = createManualRepository("write-error");
     const before = await repo.list({});
     await expect(repo.transition(before.items[0].id, "COMPLETED")).rejects.toThrow();
-    await expect(repo.create({ title: "Plano", description: null, durationType: "CUSTOM", startDate: "2026-01-01", endDate: "2026-04-01" })).rejects.toThrow();
+    await expect(repo.create({ objectives: ["Plano"], durationType: "CUSTOM", startDate: "2026-01-01", endDate: "2026-04-01" })).rejects.toThrow();
     expect(await repo.list({})).toEqual(before);
   });
   it("isola cenários e rejeita segundo ativo", async () => {
