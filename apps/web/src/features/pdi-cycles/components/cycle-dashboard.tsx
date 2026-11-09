@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { localStoragePdiCycleRepository } from "../adapters/local-storage-pdi-cycle-repository";
-import type { CycleStatus, PdiCycle } from "../domain";
+import type { CreateObjectiveInput, DevelopmentObjective, CycleStatus, PdiCycle } from "../domain";
 import type { PdiCycleRepository } from "../ports/pdi-cycle-repository";
 import { CycleFeedback } from "./cycle-feedback";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { CycleCreateDialog } from "./cycle-create-dialog";
 import { CycleAppShell } from "./cycle-app-shell";
 import { cycleLabel } from "./cycle-presentation";
 import { CycleResults } from "./cycle-results";
+import { ObjectiveList } from "./objective-list";
 
 
 type Feedback = { variant: "info" | "success" | "warning" | "error"; message: string } | null;
@@ -26,6 +27,8 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [readState, setReadState] = useState<ReadState>("loading");
   const [readError, setReadError] = useState("");
+  const [selectedCycleId, setSelectedCycleId] = useState<string | null>(null);
+  const [creatingObjective, setCreatingObjective] = useState(false);
 
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const requestSequence = useRef(0);
@@ -80,7 +83,7 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
       const updated = await repository.transition(id, next);
       const refreshed = await refresh();
       if (refreshed) {
-        const labels: Record<Exclude<CycleStatus, "DRAFT">, string> = { ACTIVE: "iniciado", COMPLETED: "concluído", CANCELLED: "cancelado" };
+        const labels: Record<Exclude<CycleStatus, "DRAFT">, string> = { ACTIVE: "iniciado", PAUSED: "pausado", COMPLETED: "concluído", CANCELLED: "cancelado" };
         setFeedback({ variant: "success", message: `Ciclo ${labels[next]} com sucesso.` });
         requestAnimationFrame(() => (itemRefs.current.get(updated.id) ?? resultTitleRef.current)?.focus());
       } else {
@@ -91,6 +94,16 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
     } finally {
       setPendingIds((current) => { const nextSet = new Set(current); nextSet.delete(id); return nextSet; });
     }
+  }
+  const selectedCycle = cycles.find((cycle) => cycle.id === selectedCycleId) ?? null;
+  async function createObjective(input: CreateObjectiveInput) {
+    if (!selectedCycle) return; const updated = await repository.createObjective(selectedCycle.id, input, selectedCycle.version); setCycles((items) => items.map((cycle) => cycle.id === updated.id ? updated : cycle)); setCreatingObjective(false); setFeedback({ variant: "success", message: "Objetivo salvo com sucesso." });
+  }
+  async function objectiveTransition(objective: DevelopmentObjective, next: "IN_PROGRESS" | "COMPLETED" | "CANCELLED") {
+    if (!selectedCycle) return; let result: string | undefined;
+    if (next === "COMPLETED") { result = window.prompt("Qual resultado foi efetivamente alcançado?") ?? undefined; if (!result) return; }
+    if (next === "CANCELLED" && !window.confirm("Cancelar este objetivo? Ele continuará disponível no histórico.")) return;
+    const updated = await repository.transitionObjective(selectedCycle.id, objective.id, next, selectedCycle.version, result); setCycles((items) => items.map((cycle) => cycle.id === updated.id ? updated : cycle)); setFeedback({ variant: "success", message: next === "COMPLETED" ? "Objetivo concluído." : next === "CANCELLED" ? "Objetivo cancelado." : "Objetivo iniciado." });
   }
 
   return (
@@ -122,12 +135,14 @@ export function CycleDashboard({ repository = localStoragePdiCycleRepository }: 
                     pendingIds={pendingIds}
                     itemRefs={itemRefs}
                     onTransition={(id, next) => void transition(id, next)}
+                    onSelectObjectives={(cycle) => { setSelectedCycleId(cycle.id); setCreatingObjective(false); }}
                   />
                 </CardContent>
               </Card>
             </section>
 
           </div>
+          {selectedCycle && <ObjectiveList cycle={selectedCycle} creating={creatingObjective} onOpenForm={() => setCreatingObjective(true)} onCloseForm={() => setCreatingObjective(false)} onCreate={createObjective} onStart={(objective) => void objectiveTransition(objective, "IN_PROGRESS")} onComplete={(objective) => void objectiveTransition(objective, "COMPLETED")} onCancel={(objective) => void objectiveTransition(objective, "CANCELLED")} />}
           {creating && <CycleCreateDialog restoreFocus={restoreCreateFocus} repository={repository} onClose={() => setCreating(false)} onCreated={(cycle) => void afterCreated(cycle)} />}
     </CycleAppShell>
   );

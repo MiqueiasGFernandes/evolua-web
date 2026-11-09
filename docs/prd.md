@@ -1,7 +1,7 @@
 # PRD — Evolua | Gestão Inteligente dos Ciclos de Desenvolvimento
 
 **Versão:** 1.0  
-**Produto:** Evolua PDI  
+**Produto:** Evolua  
 **Tipo:** Product Requirements Document  
 **Status:** Proposta de evolução funcional  
 **Público inicial:** Profissionais gerenciando seu próprio desenvolvimento  

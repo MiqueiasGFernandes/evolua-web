@@ -3,6 +3,7 @@ import type { CycleStatus as Status } from "../domain";
 const statusLabels: Record<Status, string> = {
   DRAFT: "Rascunho",
   ACTIVE: "Ativo",
+  PAUSED: "Pausado",
   COMPLETED: "Concluído",
   CANCELLED: "Cancelado"
 };

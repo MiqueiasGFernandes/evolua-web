@@ -12,7 +12,8 @@ export const CycleResults = forwardRef<HTMLDivElement, {
   pendingIds: Set<string>;
   itemRefs: React.MutableRefObject<Map<string, HTMLTableRowElement>>;
   onTransition: (id: string, next: "ACTIVE" | "COMPLETED" | "CANCELLED") => void;
-}>(({ state, cycles, filtered, error, pendingIds, itemRefs, onTransition }, ref) => {
+  onSelectObjectives?: (cycle: PdiCycle) => void;
+}>(({ state, cycles, filtered, error, pendingIds, itemRefs, onTransition, onSelectObjectives }, ref) => {
   if (state === "loading" && cycles.length === 0) {
     return <div ref={ref} className="cycle-state" role="status" aria-live="polite" aria-busy="true"><h3>Carregando seus ciclos</h3><p>Organizando o percurso mais recente…</p></div>;
   }
@@ -27,7 +28,7 @@ export const CycleResults = forwardRef<HTMLDivElement, {
   return (
     <div ref={ref} aria-busy={state === "loading" || undefined}>
       {state === "error" && <div className="cycle-feedback cycle-feedback--warning" role="alert">Os dados anteriores continuam visíveis, mas podem estar desatualizados. Recarregue a página para tentar novamente.</div>}
-      <CycleTable cycles={cycles} pendingIds={pendingIds} itemRefs={itemRefs} onTransition={onTransition} />
+      <CycleTable cycles={cycles} pendingIds={pendingIds} itemRefs={itemRefs} onTransition={onTransition} onSelectObjectives={onSelectObjectives} />
     </div>
   );
 });

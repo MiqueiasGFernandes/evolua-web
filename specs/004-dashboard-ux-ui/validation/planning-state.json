@@ -13,7 +13,7 @@
       "path": "specs/001-ciclos-pdi/contracts/openapi.yaml",
       "historical_sha256": "ff10a3f330d7f5f3a9326f526bb7966285369d492ccb3f0edf5211a3ee21d023",
       "current_sha256": "a31a076ef52902eb48e2e13c1dd95b220fa1aa850a8d064810165ea01492509c",
-      "observed_change": "info.title: Evolua PDI API → Evolua API; única diferença observada no diff do arquivo.",
+      "observed_change": "info.title: Evolua API → Evolua API; única diferença observada no diff do arquivo.",
       "handling": "Alteração local externa ao planejamento preservada. Não alterar endpoints, schemas ou este arquivo nesta fase."
     }
   ]

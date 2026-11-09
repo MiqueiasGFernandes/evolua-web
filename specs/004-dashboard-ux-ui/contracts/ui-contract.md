@@ -43,6 +43,6 @@
 
 ## Preservação e aceitação
 
-- Domínio, porta, adaptador e contratos existentes não devem ser alterados por esta refatoração. Comparar hashes com o [estado deste planejamento](../validation/planning-state.json) e preservar o baseline histórico. A diferença local de `info.title` do OpenAPI (“Evolua PDI API” → “Evolua API”) está registrada; não atribuí-la à refatoração nem revertê-la.
+- Domínio, porta, adaptador e contratos existentes não devem ser alterados por esta refatoração. Comparar hashes com o [estado deste planejamento](../validation/planning-state.json) e preservar o baseline histórico. A diferença local de `info.title` do OpenAPI (“Evolua API” → “Evolua API”) está registrada; não atribuí-la à refatoração nem revertê-la.
 - Aprovação automática, revisão de teclado e avaliação manual com leitor são evidências obrigatórias e distintas: [contrato de revisão](accessibility-review.md).
 - Capturas são candidatos de revisão visual; baseline somente após aprovação humana específica, independente da execução deste plano.

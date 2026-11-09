@@ -1,4 +1,4 @@
-import { canTransition, updatedCycle, validateCycleInput, type PdiCycle } from "../../src/features/pdi-cycles/domain";
+import { canTransition, objectiveActionAllowed, objectiveInputErrors, objectiveTransition, updatedCycle, validateCycleInput, type CreateObjectiveInput, type DevelopmentObjective, type PdiCycle } from "../../src/features/pdi-cycles/domain";
 import type { PdiCycleRepository } from "../../src/features/pdi-cycles/ports/pdi-cycle-repository";
 import { mixedCycles, OWNER_ID, FIXED_NOW } from "./pdi-cycle-data";
 
@@ -50,6 +50,19 @@ export function createManualRepository(scenario: ManualScenario): PdiCycleReposi
       const updated = { ...current, status, version: current.version + 1, updatedAt: FIXED_NOW, history: [...current.history, { id: `history-${++sequence}`, fromStatus: current.status, toStatus: status, actorId: OWNER_ID, occurredAt: FIXED_NOW }] };
       cycles = cycles.map((item) => item.id === id ? updated : item);
       return structuredClone(updated);
+    },
+    async createObjective(id, input: CreateObjectiveInput, expectedVersion) {
+      await beforeWrite(); const cycle = find(id); if (cycle.kind !== "OBJECTIVES" || cycle.version !== expectedVersion || !objectiveActionAllowed(cycle, undefined, "create")) throw new Error("Objetivo não pode ser criado.");
+      const errors = objectiveInputErrors(input, cycle); if (Object.keys(errors).length) throw new Error(Object.values(errors).join(" "));
+      const objective: DevelopmentObjective = { ...input, id: `objective-${++sequence}`, status: "PLANNED", createdAt: FIXED_NOW, updatedAt: FIXED_NOW };
+      const updated = { ...cycle, developmentObjectives: [...(cycle.developmentObjectives ?? []), objective], version: cycle.version + 1, updatedAt: FIXED_NOW }; cycles = cycles.map((item) => item.id === id ? updated : item); return structuredClone(updated);
+    },
+    async updateObjective(id, objectiveId, input, expectedVersion) {
+      await beforeWrite(); const cycle = find(id); if (cycle.kind !== "OBJECTIVES" || cycle.version !== expectedVersion) throw new Error("Objetivo não pode ser editado."); const current = (cycle.developmentObjectives ?? []).find((item) => item.id === objectiveId); if (!current || !objectiveActionAllowed(cycle, current, "edit")) throw new Error("Objetivo não pode ser editado."); const updatedObjective = { ...current, ...input, updatedAt: FIXED_NOW }; const updated = { ...cycle, developmentObjectives: (cycle.developmentObjectives ?? []).map((item) => item.id === objectiveId ? updatedObjective : item), version: cycle.version + 1, updatedAt: FIXED_NOW }; cycles = cycles.map((item) => item.id === id ? updated : item); return structuredClone(updated);
+    },
+    async updateObjectiveResult(id, objectiveId, input, expectedVersion) { return this.updateObjective(id, objectiveId, input, expectedVersion); },
+    async transitionObjective(id, objectiveId, status, expectedVersion, completionResult) {
+      await beforeWrite(); const cycle = find(id); if (cycle.kind !== "OBJECTIVES" || cycle.version !== expectedVersion) throw new Error("Objetivo não pode ser atualizado."); const current = (cycle.developmentObjectives ?? []).find((item) => item.id === objectiveId); if (!current || !objectiveActionAllowed(cycle, current, "transition")) throw new Error("Objetivo não pode ser atualizado."); const next = objectiveTransition(current, status, completionResult); const updated = { ...cycle, developmentObjectives: (cycle.developmentObjectives ?? []).map((item) => item.id === objectiveId ? next : item), version: cycle.version + 1, updatedAt: FIXED_NOW }; cycles = cycles.map((item) => item.id === id ? updated : item); return structuredClone(updated);
     }
   };
 }

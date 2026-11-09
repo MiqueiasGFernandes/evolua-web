@@ -108,7 +108,7 @@ apps/web/
 
 ## Estado local observado
 
-Domínio, porta e adaptador coincidem com os três hashes históricos. O OpenAPI tem uma diferença local em `info.title` (“Evolua PDI API” → “Evolua API”); o diff não mostra alteração de endpoints ou schemas. A mudança foi preservada e os dois hashes registrados em [planning-state.json](validation/planning-state.json). A Constituição também recebeu apenas a atualização local do nome do produto no título; seus princípios permanecem iguais. Nenhum desses arquivos foi editado pelo planejamento.
+Domínio, porta e adaptador coincidem com os três hashes históricos. O OpenAPI tem uma diferença local em `info.title` (“Evolua API” → “Evolua API”); o diff não mostra alteração de endpoints ou schemas. A mudança foi preservada e os dois hashes registrados em [planning-state.json](validation/planning-state.json). A Constituição também recebeu apenas a atualização local do nome do produto no título; seus princípios permanecem iguais. Nenhum desses arquivos foi editado pelo planejamento.
 
 ## Handoff to Tasks
 

@@ -1,15 +1,64 @@
-export const cycleStatuses = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"] as const;
+export const cycleStatuses = ["DRAFT", "ACTIVE", "PAUSED", "COMPLETED", "CANCELLED"] as const;
 export const durationTypes = ["TRIMESTER", "SEMESTER", "YEAR", "CUSTOM"] as const;
+export const objectiveStatuses = ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"] as const;
+export const objectivePriorities = ["LOW", "MEDIUM", "HIGH"] as const;
+export const criterionStatuses = ["NOT_STARTED", "OBSERVING", "MET"] as const;
 export type CycleStatus = (typeof cycleStatuses)[number];
 export type DurationType = (typeof durationTypes)[number];
+export type ObjectiveStatus = (typeof objectiveStatuses)[number];
+export type ObjectivePriority = (typeof objectivePriorities)[number];
+export type CriterionStatus = (typeof criterionStatuses)[number];
+export type QuantitativeMeasurement = { type: "QUANTITATIVE"; indicatorName: string; unit: string; initialValue: number; targetValue: number; currentValue?: number };
+export type QualitativeMeasurement = { type: "QUALITATIVE"; criteria: { id: string; text: string; status: CriterionStatus }[]; resultDescription?: string };
+export type DevelopmentObjective = { id: string; title: string; description?: string; motivation?: string; successCriterion: string; dueDate: string; priority: ObjectivePriority; status: ObjectiveStatus; measurement: QuantitativeMeasurement | QualitativeMeasurement; completionResult?: string; completedAt?: string; createdAt: string; updatedAt: string };
+export type CreateObjectiveInput = Omit<DevelopmentObjective, "id" | "createdAt" | "updatedAt" | "status" | "completedAt" | "completionResult"> & { status?: ObjectiveStatus };
+export type ObjectiveSummary = { total: number; completed: number; pending: number };
 export type StatusHistory = { id: string; fromStatus: CycleStatus | null; toStatus: CycleStatus; occurredAt: string; actorId: string };
 type CycleBase = { id: string; ownerId: string; durationType: DurationType; startDate: string; endDate: string; status: CycleStatus; version: number; createdAt: string; updatedAt: string; history: StatusHistory[] };
 export type LegacyPdiCycle = CycleBase & { kind: "LEGACY"; title: string; description: string | null };
-export type ObjectivesPdiCycle = CycleBase & { kind: "OBJECTIVES"; objectives: string[] };
+export type ObjectivesPdiCycle = CycleBase & { kind: "OBJECTIVES"; objectives: string[]; developmentObjectives?: DevelopmentObjective[] };
 export type PdiCycle = LegacyPdiCycle | ObjectivesPdiCycle;
 export type CreateCycleInput = { objectives: string[]; durationType: DurationType; startDate: string; endDate: string };
 export type UpdateCycleInput = Partial<Pick<CreateCycleInput, "durationType" | "startDate" | "endDate">> & { title?: string; description?: string | null };
 export type InputErrors = Record<string, string>;
+
+export function objectiveInputErrors(input: Omit<CreateObjectiveInput, "status">, cycle: Pick<PdiCycle, "startDate" | "endDate">): InputErrors {
+  const errors: InputErrors = {};
+  if (!input || !input.title?.trim()) errors.title = "Informe um título.";
+  if (!input?.successCriterion?.trim()) errors.successCriterion = "Informe o critério de sucesso.";
+  if (!isCalendarDate(input?.dueDate) || input.dueDate < cycle.startDate || input.dueDate > cycle.endDate) errors.dueDate = "O prazo deve estar dentro do período do ciclo.";
+  if (!objectivePriorities.includes(input?.priority)) errors.priority = "Selecione uma prioridade válida.";
+  if (!input?.measurement || (input.measurement.type !== "QUANTITATIVE" && input.measurement.type !== "QUALITATIVE")) errors.measurement = "Selecione uma mensuração válida.";
+  else if (input.measurement.type === "QUANTITATIVE") {
+    const m = input.measurement;
+    if (!m.indicatorName.trim()) errors.indicatorName = "Informe o indicador.";
+    if (!m.unit.trim()) errors.unit = "Informe a unidade.";
+    if (!Number.isFinite(m.initialValue)) errors.initialValue = "Informe um valor inicial válido.";
+    if (!Number.isFinite(m.targetValue) || m.targetValue === m.initialValue) errors.targetValue = "O valor-alvo deve ser válido e diferente do inicial.";
+    if (m.currentValue !== undefined && !Number.isFinite(m.currentValue)) errors.currentValue = "Informe um valor atual válido.";
+  } else if (!mCriteria(input.measurement.criteria)) errors.criteria = "Informe ao menos um critério observável.";
+  return errors;
+}
+function mCriteria(criteria: QualitativeMeasurement["criteria"]) { return Array.isArray(criteria) && criteria.length > 0 && criteria.every((criterion) => criterion.text.trim() && criterionStatuses.includes(criterion.status)); }
+export function objectiveProgress(objective: DevelopmentObjective): number | null {
+  if (objective.measurement.type !== "QUANTITATIVE") return null;
+  const { initialValue, targetValue, currentValue } = objective.measurement;
+  if (currentValue === undefined || !Number.isFinite(currentValue) || targetValue === initialValue) return null;
+  return Math.max(0, Math.min(100, ((currentValue - initialValue) / (targetValue - initialValue)) * 100));
+}
+export function isObjectiveOverdue(objective: DevelopmentObjective, today = new Date().toISOString().slice(0, 10)) { return objective.dueDate < today && !["COMPLETED", "CANCELLED"].includes(objective.status); }
+export function objectiveSummary(cycle: PdiCycle): ObjectiveSummary { const items = cycle.kind === "OBJECTIVES" ? cycle.developmentObjectives ?? [] : []; return { total: items.length, completed: items.filter((item) => item.status === "COMPLETED").length, pending: items.filter((item) => ["PLANNED", "IN_PROGRESS"].includes(item.status)).length }; }
+export function objectiveActionAllowed(cycle: PdiCycle, objective: DevelopmentObjective | undefined, action: "create" | "edit" | "progress" | "transition") {
+  if (["COMPLETED", "CANCELLED"].includes(cycle.status) || (objective && ["COMPLETED", "CANCELLED"].includes(objective.status))) return false;
+  if (action === "create" || action === "edit") return ["DRAFT", "ACTIVE", "PAUSED"].includes(cycle.status);
+  return cycle.status === "ACTIVE";
+}
+export function objectiveTransition(objective: DevelopmentObjective, next: ObjectiveStatus, completionResult?: string): DevelopmentObjective {
+  if (["COMPLETED", "CANCELLED"].includes(objective.status)) throw new Error("Objetivos encerrados são imutáveis.");
+  if (!((objective.status === "PLANNED" && ["IN_PROGRESS", "CANCELLED"].includes(next)) || (objective.status === "IN_PROGRESS" && ["COMPLETED", "CANCELLED"].includes(next)))) throw new Error("Transição de objetivo inválida.");
+  if (next === "COMPLETED" && !completionResult?.trim()) throw new Error("Informe o resultado alcançado para concluir.");
+  const now = new Date().toISOString(); return { ...objective, status: next, completionResult: next === "COMPLETED" ? completionResult!.trim() : objective.completionResult, completedAt: next === "COMPLETED" ? now : undefined, updatedAt: now };
+}
 
 export function isCalendarDate(value: unknown): value is string {
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -65,5 +114,5 @@ export function updatedCycle(current: PdiCycle, input: UpdateCycleInput, expecte
   return { ...next, version: current.version + 1, updatedAt: new Date().toISOString() };
 }
 export function canTransition(from: CycleStatus, to: CycleStatus): boolean {
-  return (from === "DRAFT" && (to === "ACTIVE" || to === "CANCELLED")) || (from === "ACTIVE" && (to === "COMPLETED" || to === "CANCELLED"));
+  return (from === "DRAFT" && (to === "ACTIVE" || to === "CANCELLED")) || (from === "ACTIVE" && (to === "PAUSED" || to === "COMPLETED" || to === "CANCELLED")) || (from === "PAUSED" && (to === "ACTIVE" || to === "CANCELLED"));
 }

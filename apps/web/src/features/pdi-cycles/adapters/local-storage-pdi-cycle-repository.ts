@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { canTransition, cycleStatuses, durationTypes, isCalendarDate, updatedCycle, validateCycleInput, validateLegacyInput, type PdiCycle } from "../domain";
+import { canTransition, cycleStatuses, durationTypes, isCalendarDate, objectiveActionAllowed, objectiveInputErrors, objectiveTransition, updatedCycle, validateCycleInput, validateLegacyInput, type CreateObjectiveInput, type DevelopmentObjective, type ObjectiveStatus, type PdiCycle } from "../domain";
 import type { PdiCycleRepository } from "../ports/pdi-cycle-repository";
-const v1 = "evolua:pdi-cycles:v1", v2 = "evolua:pdi-cycles:v2", ownerId = "local-user";
+const v1 = "evolua:pdi-cycles:v1", v2 = "evolua:pdi-cycles:v2", v3 = "evolua:pdi-cycles:v3", ownerId = "local-user";
 const date = z.string().refine(isCalendarDate);
 const record = z.object({ id: z.string().min(1), ownerId: z.string().min(1), durationType: z.enum(durationTypes), startDate: date, endDate: date, status: z.enum(cycleStatuses), version: z.number().int().min(1), createdAt: z.string().datetime(), updatedAt: z.string().datetime(), history: z.array(z.object({ id: z.string().min(1), fromStatus: z.enum(cycleStatuses).nullable(), toStatus: z.enum(cycleStatuses), occurredAt: z.string().datetime(), actorId: z.string().min(1) })).min(1) }).passthrough();
-type Envelope = { schemaVersion: 2; legacySource: string | null; cycles: PdiCycle[] };
+type Envelope = { schemaVersion: 3; legacySource: string | null; cycles: PdiCycle[] };
 function decode(value: unknown, legacy: boolean): PdiCycle[] {
   if (!Array.isArray(value)) throw new Error("Armazenamento inválido. Preserve os dados antes da recuperação.");
   const cycles = value.map((raw) => {
@@ -24,16 +24,18 @@ function decode(value: unknown, legacy: boolean): PdiCycle[] {
   if (new Set(cycles.map(({ id }) => id)).size !== cycles.length) throw new Error("Identificadores duplicados no armazenamento.");
   return cycles;
 }
-function write(state: Envelope) { window.localStorage.setItem(v2, JSON.stringify(state)); }
+function write(state: Envelope) { const serialized = JSON.stringify(state); window.localStorage.setItem(v3, serialized); window.localStorage.setItem(v2, serialized); }
 function read(): Envelope {
   const source = window.localStorage.getItem(v1);
-  const raw = window.localStorage.getItem(v2);
+  const rawV3 = window.localStorage.getItem(v3), rawV2 = window.localStorage.getItem(v2);
+  if (rawV3 !== null && rawV2 !== null && rawV3 !== rawV2) throw new Error("Uma versão anterior alterou os dados. Preserve ambos os armazenamentos antes da recuperação.");
+  const raw = rawV3 ?? rawV2;
   if (raw !== null) {
-    const parsed = z.object({ schemaVersion: z.literal(2), legacySource: z.string().nullable(), cycles: z.unknown() }).parse(JSON.parse(raw));
+    const parsed = z.object({ schemaVersion: z.union([z.literal(2), z.literal(3)]), legacySource: z.string().nullable(), cycles: z.unknown() }).parse(JSON.parse(raw));
     if (source !== parsed.legacySource) throw new Error("Uma versão anterior alterou os dados. Feche as versões antigas e preserve ambos os armazenamentos antes da recuperação.");
-    return { ...parsed, cycles: decode(parsed.cycles, false) };
+    return { schemaVersion: 3, legacySource: parsed.legacySource, cycles: decode(parsed.cycles, false) };
   }
-  const state: Envelope = { schemaVersion: 2, legacySource: source, cycles: decode(source === null ? [] : JSON.parse(source), true) };
+  const state: Envelope = { schemaVersion: 3, legacySource: source, cycles: decode(source === null ? [] : JSON.parse(source), true) };
   write(state); return state;
 }
 function find(state: Envelope, id: string): number {
@@ -65,5 +67,29 @@ export const localStoragePdiCycleRepository: PdiCycleRepository = {
     const now = new Date().toISOString();
     const next = { ...current, status, version: current.version + 1, updatedAt: now, history: [...current.history, { id: crypto.randomUUID(), fromStatus: current.status, toStatus: status, occurredAt: now, actorId: ownerId }] };
     state.cycles[index] = next; write(state); return next;
+  },
+  async createObjective(cycleId, input, expectedVersion) {
+    const state = read(), index = find(state, cycleId), cycle = state.cycles[index];
+    if (cycle.kind !== "OBJECTIVES" || !objectiveActionAllowed(cycle, undefined, "create")) throw new Error("Não é possível planejar objetivos neste ciclo.");
+    if (cycle.version !== expectedVersion) throw new Error("O ciclo foi alterado. Recarregue antes de tentar novamente.");
+    const errors = objectiveInputErrors(input, cycle); if (Object.keys(errors).length) throw new Error(Object.values(errors).join(" "));
+    const now = new Date().toISOString(), objective: DevelopmentObjective = { ...input, id: crypto.randomUUID(), title: input.title.trim(), successCriterion: input.successCriterion.trim(), status: "PLANNED", createdAt: now, updatedAt: now };
+    state.cycles[index] = { ...cycle, developmentObjectives: [...(cycle.developmentObjectives ?? []), objective], version: cycle.version + 1, updatedAt: now }; write(state); return state.cycles[index];
+  },
+  async updateObjective(cycleId, objectiveId, input, expectedVersion) {
+    const state = read(), index = find(state, cycleId), cycle = state.cycles[index];
+    if (cycle.kind !== "OBJECTIVES" || cycle.version !== expectedVersion) throw new Error("O ciclo foi alterado. Recarregue antes de tentar novamente.");
+    const items = cycle.developmentObjectives ?? [], at = items.findIndex((item) => item.id === objectiveId), current = items[at];
+    if (!current || !objectiveActionAllowed(cycle, current, "edit")) throw new Error("Objetivo não pode ser editado neste ciclo.");
+    const nextInput = { ...current, ...input, measurement: input.measurement ?? current.measurement }; const errors = objectiveInputErrors(nextInput, cycle); if (Object.keys(errors).length) throw new Error(Object.values(errors).join(" "));
+    const now = new Date().toISOString(), next = { ...current, ...input, updatedAt: now }; state.cycles[index] = { ...cycle, developmentObjectives: items.map((item, i) => i === at ? next : item), version: cycle.version + 1, updatedAt: now }; write(state); return state.cycles[index];
+  },
+  async updateObjectiveResult(cycleId, objectiveId, input, expectedVersion) { return this.updateObjective(cycleId, objectiveId, input as Partial<CreateObjectiveInput>, expectedVersion); },
+  async transitionObjective(cycleId, objectiveId, status, expectedVersion, completionResult) {
+    const state = read(), index = find(state, cycleId), cycle = state.cycles[index];
+    if (cycle.kind !== "OBJECTIVES" || cycle.version !== expectedVersion) throw new Error("O ciclo foi alterado. Recarregue antes de tentar novamente.");
+    const items = cycle.developmentObjectives ?? [], at = items.findIndex((item) => item.id === objectiveId), current = items[at];
+    if (!current || !objectiveActionAllowed(cycle, current, "transition")) throw new Error("Objetivo não pode mudar de estado neste ciclo.");
+    const next = objectiveTransition(current, status as ObjectiveStatus, completionResult), now = new Date().toISOString(); state.cycles[index] = { ...cycle, developmentObjectives: items.map((item, i) => i === at ? next : item), version: cycle.version + 1, updatedAt: now }; write(state); return state.cycles[index];
   }
 };

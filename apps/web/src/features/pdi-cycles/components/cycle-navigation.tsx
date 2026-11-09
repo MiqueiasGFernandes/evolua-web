@@ -5,6 +5,8 @@ import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, Cross2Icon, Hamburg
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import Image from 'next/image'
+import logo from '@/assets/logo.png'
 
 type CycleSection = "meus-ciclos" | "novo-ciclo";
 
@@ -83,8 +85,10 @@ function CycleLinks({ query = "", onNavigate }: { query?: string; onNavigate?: (
 function NavigationBrand({ compact = false, onNavigate }: { compact?: boolean; onNavigate?: () => void }) {
   return (
     <a className="cycle-navigation__brand" href="/pdi-cycles" aria-label="Evolua, início" onClick={(event) => { if (onNavigate) { event.preventDefault(); onNavigate(); } }}>
-      <span className="cycle-navigation__brand-mark" aria-hidden="true">e</span>
-      {!compact && <span>Evolua <span className="cycle-navigation__brand-detail">PDI</span></span>}
+      <Image
+          alt="Evolua"
+          src={logo}
+        />
     </a>
   );
 }
@@ -107,7 +111,6 @@ export function CycleNavigation() {
         </Button>
       </div>
       {expanded && <NavigationSearch inputId="desktop-cycle-navigation-search" query={query} onChange={setQuery} />}
-      <p className={cn("cycle-navigation__section-label", !expanded && "sr-only")}>Desenvolvimento</p>
       <button type="button" className="cycle-navigation__group" title="Ciclos" aria-label="Ciclos"
         aria-expanded={linksVisible} aria-controls="desktop-cycle-links" onClick={() => setSectionOpen((value) => !value)}>
         <ReaderIcon aria-hidden="true" />

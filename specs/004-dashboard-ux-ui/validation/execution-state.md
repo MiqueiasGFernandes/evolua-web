@@ -13,7 +13,7 @@ Orca e speech-dispatcher encontrados em /usr/bin. A ferramenta de interação re
 
 T014: testes inicialmente falharam pela ausência do módulo; T015: 3 testes do repositório aprovados. T016/T017: superfície Vite em 127.0.0.1:4174 e smoke exclusivo aprovados (1 teste). Vite 5.4.21 reutiliza a versão já resolvida no lockfile, apenas devDependency. Fixtures de dados foram separadas do helper Playwright para não importar o runner no navegador.
 
-Orca: versão 42.0 confirmada. Lint, TypeScript e build aprovados; bundle de produção manteve First Load JS de 119 kB. A primeira rodada ampliada encontrou um seletor novo com o nome antigo “Evolua PDI, início”; ele foi alinhado ao nome atual “Evolua, início”, preservando a alteração local de marca. Rodada final reexecutada após esse ajuste de teste.
+Orca: versão 42.0 confirmada. Lint, TypeScript e build aprovados; bundle de produção manteve First Load JS de 119 kB. A primeira rodada ampliada encontrou um seletor novo com o nome antigo “Evolua, início”; ele foi alinhado ao nome atual “Evolua, início”, preservando a alteração local de marca. Rodada final reexecutada após esse ajuste de teste.
 
 ## Versões de execução
 
